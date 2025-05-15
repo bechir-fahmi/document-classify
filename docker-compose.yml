@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  commercial-doc-classifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - CONFIDENCE_THRESHOLD=0.15
+    restart: unless-stopped 
