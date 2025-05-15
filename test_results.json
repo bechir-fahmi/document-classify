@@ -1,0 +1,36 @@
+{
+  "original_classification": {
+    "document_id": "97101ad5-d84a-44b4-8432-28a5553d3898",
+    "prediction": "receipt",
+    "confidence": 0.2183160928553998,
+    "confidence_scores": {
+      "bank_statement": 0.04489956844567604,
+      "certificate": 0.023147525319574678,
+      "contract": 0.04383152524579202,
+      "delivery_note": 0.04924024496308979,
+      "expense_report": 0.04275357258369965,
+      "form": 0.041054412018329205,
+      "id_card": 0.04594109398109446,
+      "invoice": 0.21510934240260837,
+      "invoice ": 0.011272347262100134,
+      "letter": 0.0349615551131691,
+      "payslip": 0.011129325565296406,
+      "payslip ": 0.012141512706258096,
+      "purchase_order": 0.05959215746137248,
+      "quote": 0.0644195327626716,
+      "receipt": 0.2183160928553998,
+      "report": 0.033737737903859054,
+      "resume": 0.026192091197840522,
+      "unknown": 0.022260362212168587
+    },
+    "text_excerpt": "Bon de commande \u00a9\n\nMon Entreprise\n\n22, Avenue Voltaire\n\n13000 Marsaile, France\nT\u00e9l\u00e9phone : +33 4 9299 99 99\n\nDate\nBon de commande N\u00b0\nNum\u00e9ro de client:\nModalit\u00e9 de paiement\nMode de paiement\nEmis par\n\nContact lient\n'T\u00e9l\u00e9phone du client\n\nInformations additionnelles.\n\n482020\n123\n\n45\n\n30 jours\n\nCB/ Ch\u00e8que\nPierre Fournisseur\nMichael Acheteur\n04 82 95 35 56\n\nMerci d'avoir choisi Mon Entreprise pour nos services.\n\n'Service apr\u00e8s-vente - Garantie : 1 an\n\nDestinataire\nAcheteur SA\n\nMichel Acheteur\n\n31, rue...",
+    "processing_time_ms": 1130.0058364868164
+  },
+  "new_classification": {
+    "document_id": "97101ad5-d84a-44b4-8432-28a5553d3898",
+    "prediction": "purchase_order",
+    "confidence": null,
+    "confidence_scores": {},
+    "text_excerpt": "Bon de commande \u00a9\n\nMon Entreprise\n\n22, Avenue Voltaire\n\n13000 Marsaile, France\nT\u00e9l\u00e9phone : +33 4 9299 99 99\n\nDate\nBon de commande N\u00b0\nNum\u00e9ro de client:\nModalit\u00e9 de paiement\nMode de paiement\nEmis par\n\nContact lient\n'T\u00e9l\u00e9phone du client\n\nInformations ad..."
+  }
+}
