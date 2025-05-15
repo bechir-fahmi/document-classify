@@ -198,76 +198,76 @@ class SklearnClassifier:
             raise ValueError("Model not trained yet")
         
         # Special case for invoice detection - check for key invoice terms
+        # --- Multilingual and expanded indicators for all document types ---
         invoice_indicators = [
-            'facture', 'invoice', 'فاتورة', 'تاريخ', 'montant', 'tva', 'ttc',
-            'échéance', 'payment', 'due', 'total', 'tax', 'subtotal', 
-            'customer', 'client', 'date', 'amount', 'paid', 'مبلغ', 'ضريبة',
-            'إجمالي', 'دفع', 'مستحق', 'عميل', 'فاتورة رقم', 'فاتورة الشهر', 
-            'montant ht', 'montant ttc', 'total tva', 'facture du mois',
-            'facture proforma', 'ضريبة القيمة المضافة', 'المبلغ الإجمالي'
+            # French
+            'facture', 'montant', 'tva', 'ttc', 'échéance', 'client', 'date', 'montant ht', 'montant ttc', 'total tva', 'facture du mois', 'facture proforma', 'n° facture', 'numéro de facture',
+            # English
+            'invoice', 'payment', 'due', 'total', 'tax', 'subtotal', 'customer', 'amount', 'paid', 'invoice number', 'proforma invoice', 'vat', 'balance due',
+            # Arabic
+            'فاتورة', 'تاريخ', 'مبلغ', 'ضريبة', 'إجمالي', 'دفع', 'مستحق', 'عميل', 'فاتورة رقم', 'فاتورة الشهر', 'المبلغ الإجمالي', 'ضريبة القيمة المضافة',
+            # Mixed/ocr
+            'factura', 'factur', 'inv', 'فاتوره', 'فواتير', 'فكتورة', 'فاتورة#', 'invoice#', 'facture#', 'رقم الفاتورة', 'رقم الفاتوره',
         ]
-        
-        # Check for key invoice patterns that strongly indicate an invoice
         strong_invoice_patterns = [
-            r'facture\s*[#:n°]',
-            r'invoice\s*[#:n°]',
-            r'facture\s+.*\s+n[o°]',
-            r'n[o°]\s*facture',
-            r'fac\.?\s*n[o°]',
-            r'montant\s*(ht|ttc)',
-            r'total\s*(amount|ttc|ht)',
-            r'amount\s*due',
-            r'فاتورة\s*رقم',
-            r'رقم\s*الفاتورة',
-            r'facture\s*du\s*mois',
-            r'facture\s*n.*\s*\d+',
-            r'invoice\s*n.*\s*\d+',
-            r'فاتورة\s*الشهر',
-            r'مبلغ\s*إجمالي',
-            r'المبلغ\s*الإجمالي',
-            r'ضريبة\s*القيمة\s*المضافة',
-            r'montant\s*total\s*hors',
-            r'total\s*tva',
-            r'facture.*\d{4,}'
+            r'facture\s*[#:n°]', r'invoice\s*[#:n°]', r'فاتورة\s*رقم', r'رقم\s*الفاتورة', r'facture\s*du\s*mois', r'facture\s*n.*\s*\d+', r'invoice\s*n.*\s*\d+', r'فاتورة\s*الشهر', r'مبلغ\s*إجمالي', r'المبلغ\s*الإجمالي', r'ضريبة\s*القيمة\s*المضافة', r'montant\s*total\s*hors', r'total\s*tva', r'facture.*\d{4,}', r'invoice number', r'n[°o]?\s*facture', r'facture n[°o]?', r'فاتورة\s*الشهر', r'facture.*\d{4,}',
+            r'proforma invoice', r'paid invoice', r'فاتورة مدفوعة', r'فاتورة ضريبية', r'فاتورة مبيعات', r'فاتورة مشتريات',
         ]
-        
-        # Definitive invoice markers that guarantee it's an invoice - these override other signals
         definitive_invoice_markers = [
-            'facture n', 'invoice #', 'فاتورة رقم', 'facture du mois', 'فاتورة الشهر',
-            'montant ttc', 'montant ht', 'facture proforma', 'ضريبة القيمة المضافة',
-            'facture proforma', 'n° facture', 'invoice number', 'facture n°'
+            'facture n', 'invoice #', 'فاتورة رقم', 'facture du mois', 'فاتورة الشهر', 'montant ttc', 'montant ht', 'facture proforma', 'ضريبة القيمة المضافة', 'n° facture', 'invoice number', 'facture n°', 'paid invoice', 'فاتورة مدفوعة',
         ]
-        
-        # Check for purchase order indicators
         purchase_order_indicators = [
-            'bon de commande', 'purchase order', 'order', 'p.o.', 'po', 'bc', 'b.c.',
-            'commande', 'bon', 'commander', 'fournisseur', 'supplier',
-            'acheteur', 'buyer', 'référence', 'reference', 'bon de commande n°',
-            'numéro de commande', 'order number', 'modalité de paiement', 'emis par',
-            'délai de livraison', 'articles', 'conditions'
+            # French
+            'bon de commande', 'commande', 'fournisseur', 'acheteur', 'référence', 'modalité de paiement', 'délai de livraison', 'articles', 'conditions', 'numéro de commande',
+            # English
+            'purchase order', 'order', 'p.o.', 'po', 'supplier', 'buyer', 'reference', 'order number', 'payment terms', 'delivery date', 'item', 'items', 'quantity',
+            # Arabic
+            'أمر شراء', 'طلب شراء', 'رقم أمر الشراء', 'المورد', 'المشتري', 'رقم الطلب', 'شروط الدفع', 'تاريخ التسليم', 'كمية', 'مواد',
+            # Mixed/ocr
+            'b.c.', 'bc', 'p.o', 'p o', 'بون دي كوموند', 'امر شراء', 'امر توريد', 'رقم امر الشراء',
         ]
-        
-        # Strong purchase order patterns - these are definitive indicators of purchase orders
         strong_po_patterns = [
-            r'bon\s+de\s+commande',
-            r'purchase\s+order',
-            r'p\.?o\.?\s*[#:n°]',
-            r'b\.?c\.?\s*[#:n°]',
-            r'commande\s*[#:n°]',
-            r'order\s*[#:n°]',
-            r'bon\s+de\s+commande\s+n[o°]',
-            r'numéro\s*:\s*bc-',
-            r'numéro\s*de\s*commande',
-            r'pour\s+le\s+fournisseur.*pour\s+le\s+client',
-            r'fournisseur\s*:.*client\s*:'
+            r'bon\s+de\s+commande', r'purchase\s+order', r'p\.?o\.?\s*[#:n°]', r'b\.?c\.?\s*[#:n°]', r'commande\s*[#:n°]', r'order\s*[#:n°]', r'bon\s+de\s+commande\s+n[o°]', r'numéro\s*:\s*bc-', r'numéro\s*de\s*commande', r'pour\s+le\s+fournisseur.*pour\s+le\s+client', r'fournisseur\s*:.*client\s*:',
+            r'أمر\s*شراء', r'طلب\s*شراء', r'رقم\s*أمر\s*الشراء',
         ]
-        
-        # Regular purchase order exclusion patterns - these patterns are unlikely in purchase orders
         po_exclusion_patterns = [
-            r'facture\s+acquitt[ée]',
-            r'paid\s+invoice',
-            r'reçu\s+de\s+paiement',
-            r'payment\s+receipt'
+            r'facture\s+acquitt[ée]', r'paid\s+invoice', r'reçu\s+de\s+paiement', r'payment\s+receipt', r'فاتورة', r'invoice',
+        ]
+        quote_indicators = [
+            'devis', 'quotation', 'quote', 'offre de prix', 'proposition commerciale', 'عرض سعر', 'تسعيرة', 'عرض أسعار', 'quote #', 'devis n°', 'quotation number', 'numéro de devis', 'devis رقم',
+        ]
+        strong_quote_patterns = [
+            r'devis\s*n[°o]?', r'quotation\s*[#:n°]?', r'quote\s*[#:n°]?', r'devis numéro', r'numéro de devis', r'offre de prix', r'proposition commerciale', r'عرض\s*سعر',
+        ]
+        delivery_note_indicators = [
+            'bon de livraison', 'delivery note', 'b.l.', 'bl', 'numéro de bon de livraison', 'delivery note number', 'note de livraison', 'إشعار تسليم', 'إيصال تسليم', 'رقم إشعار التسليم', 'رقم إيصال التسليم',
+        ]
+        strong_delivery_patterns = [
+            r'bon de livraison', r'delivery note', r'b\.l\.\s*n[°o]?', r'bl\s*n[°o]?', r'bon de livraison n[°o]?', r'delivery note n[°o]?', r'numéro de bon de livraison', r'إشعار\s*تسليم',
+        ]
+        receipt_indicators = [
+            'reçu', 'receipt', 'reçu de paiement', 'payment receipt', 'numéro de reçu', 'reçu de caisse', 'إيصال', 'إيصال دفع', 'إيصال استلام', 'رقم الإيصال', 'سند قبض', 'سند صرف',
+        ]
+        strong_receipt_patterns = [
+            r'reçu\s*n[°o]?', r'receipt\s*[#:n°]?', r'reçu de paiement', r'payment receipt', r'numéro de reçu', r'reçu de caisse', r'إيصال\s*دفع', r'إيصال\s*استلام',
+        ]
+        bank_statement_indicators = [
+            'relevé bancaire', 'bank statement', 'relevé de compte', 'statement', 'relevé', 'bank', 'compte', 'رقم الحساب', 'كشف حساب', 'كشف بنكي', 'بيان حساب',
+        ]
+        strong_bank_patterns = [
+            r'relevé bancaire', r'bank statement', r'relevé de compte', r'statement\s*[#:n°]?', r'relevé\s*n[°o]?', r'bank statement n[°o]?', r'كشف\s*حساب',
+        ]
+        expense_report_indicators = [
+            'note de frais', 'expense report', 'remboursement', 'frais', 'rapport de dépenses', 'تقرير مصاريف', 'مصاريف', 'نفقات', 'expense', 'expenses', 'reimbursement',
+        ]
+        strong_expense_patterns = [
+            r'note de frais', r'expense report', r'note de frais\s*n[°o]?', r'expense report\s*[#:n°]?', r'expense report n[°o]?', r'تقرير\s*مصاريف',
+        ]
+        payslip_indicators = [
+            'bulletin de paie', 'payslip', 'fiche de paie', 'bulletin de salaire', 'fiche de paie n°', 'payslip number', 'كشف رواتب', 'قسيمة راتب', 'بيان رواتب', 'رقم قسيمة الراتب',
+        ]
+        strong_payslip_patterns = [
+            r'bulletin de paie', r'payslip', r'fiche de paie', r'payslip\s*[#:n°]?', r'bulletin de salaire', r'fiche de paie n[°o]?', r'payslip n[°o]?', r'كشف\s*رواتب',
         ]
         
         text_lower = text.lower()
