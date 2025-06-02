@@ -1,7 +1,8 @@
 import os
 import logging
 import re
-from preprocessor import extract_text_from_file, clean_text
+from .text_extraction import extract_text_from_file
+from preprocessor.text_processor import clean_text
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
