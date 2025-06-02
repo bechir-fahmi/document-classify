@@ -7,6 +7,10 @@ import config
 from api import app
 from models import get_model
 from utils import load_sample_data, augment_with_additional_data
+from utils.cloudinary_utils import upload_document
+from utils.text_extraction import extract_text_from_file
+from preprocessor.text_processor import preprocess_for_model
+from utils.document_analyzer import analyze_document
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -178,14 +182,14 @@ def train_enhanced_model(model_type=None, optimize=False):
 
 def classify_file(file_path, model_type=None):
     """
-    Classify a document file
+    Classify a document file and upload it to Cloudinary
     
     Args:
         file_path: Path to the document file
         model_type: Type of model to use
         
     Returns:
-        Classification result
+        Dictionary containing classification result and Cloudinary URL
     """
     from preprocessor import extract_text_from_file, preprocess_for_model
     from utils.document_analyzer import analyze_document
@@ -197,123 +201,50 @@ def classify_file(file_path, model_type=None):
     
     logger.info(f"Classifying file: {file_path}")
     
+    # Upload file to Cloudinary
+    upload_result = upload_document(file_path)
+    if not upload_result["success"]:
+        logger.error(f"Failed to upload file to Cloudinary: {upload_result.get('error')}")
+        return {
+            "success": False,
+            "error": "Failed to upload document to cloud storage",
+            "classification": None
+        }
+    
     # First, try rule-based classification which is more reliable for specific document types
-    rule_based_type = analyze_document(file_path)
-    logger.info(f"Rule-based classification result: {rule_based_type}")
-    
-    # Extract text from file
-    text = extract_text_from_file(file_path=file_path)
-    
-    # Check for invoice structural patterns before classification
-    # These patterns focus on the structure typical of invoices in any language
-    text_lower = text.lower()
-    
-    # Check for invoice structural components
-    invoice_indicators = {
-        'invoice_keyword': any(keyword in text_lower for keyword in ['facture', 'invoice', 'فاتورة']),
-        'invoice_number': re.search(r'(?:facture|invoice|فاتورة).*?(?:n[°o]|number|#|رقم|\d{4,})', text_lower) is not None,
-        'amount_pattern': len(re.findall(r'\d+[.,]\d{2,3}', text_lower)) >= 2,  # At least two decimal amounts
-        'tax_indicator': any(tax in text_lower for tax in ['tva', 'tax', 'vat', 'ضريبة', 'أداء']),
-        'total_amount': re.search(r'(?:total|montant|amount|إجمالي|المبلغ).*?\d+[.,]\d+', text_lower) is not None,
-        'date_pattern': re.search(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}', text_lower) is not None,
-        'tunisian_invoice': any(pattern in text_lower for pattern in ['facture du mois (dt)', 'فاتورة الشهر', 'montant total hors'])
-    }
-    
-    # Count how many structural components are present
-    invoice_structure_score = sum(1 for indicator in invoice_indicators.values() if indicator)
-    
-    # If document has strong invoice structural characteristics, override with invoice classification
-    # Lower threshold for multilingual invoices, especially Tunisian ones with mixed French/Arabic
-    if (invoice_structure_score >= 4 and invoice_indicators['invoice_keyword'] and invoice_indicators['amount_pattern']) or \
-       (invoice_structure_score >= 3 and invoice_indicators['invoice_keyword'] and invoice_indicators['tax_indicator']) or \
-       (invoice_indicators['tunisian_invoice'] and invoice_indicators['amount_pattern']):
-        logger.info(f"Detected strong invoice structure ({invoice_structure_score}/7 indicators) - overriding classification")
-        logger.info(f"Invoice indicators: {invoice_indicators}")
+    try:
+        # Extract text from the file
+        text = extract_text_from_file(file_path)
         
-        # Create confidence scores with invoice as highest, only for supported types
-        confidence_scores = {t: (0.75 if t == "invoice" else 0.05) for t in SUPPORTED_TYPES}
+        # Preprocess the text
+        processed_text = preprocess_for_model(text)
+        
+        # Get the model
+        model = get_model(model_type)
+        
+        # Classify the document
+        classification = model.classify(processed_text)
+        
+        # Analyze the document for additional metadata
+        metadata = analyze_document(text)
         
         return {
-            'prediction': "invoice",
-            'confidence': 0.75,
-            'confidence_scores': confidence_scores,
-            'override': True,
-            'invoice_structure_score': invoice_structure_score
+            "success": True,
+            "classification": classification,
+            "metadata": metadata,
+            "cloudinary_url": upload_result["url"],
+            "public_id": upload_result["public_id"]
         }
-    
-    # Preprocess text
-    processed_text = preprocess_for_model(text, model_type=model_type)
-    
-    # Get model
-    model = get_model(model_type)
-    
-    # Get prediction
-    result = model.predict(processed_text)
-    
-    # If rule-based classification identified a document type with high confidence, use that instead
-    if rule_based_type != "❓ Unknown Document Type":
-        logger.info(f"Using rule-based classification: {rule_based_type}")
         
-        # Create confidence scores with the rule-based type as highest, only for supported types
-        confidence_scores = {t: 0.05 for t in SUPPORTED_TYPES}
-        rule_type_key = rule_based_type.lower()
-        if rule_type_key in confidence_scores:
-            confidence_scores[rule_type_key] = 0.75
-        
-        # Normalize scores
-        total = sum(confidence_scores.values())
-        for key in confidence_scores:
-            confidence_scores[key] = confidence_scores[key] / total
-        
+    except Exception as e:
+        logger.error(f"Error classifying file: {str(e)}")
         return {
-            'prediction': rule_type_key,
-            'confidence': confidence_scores[rule_type_key],
-            'confidence_scores': confidence_scores,
-            'override': True,
-            'rule_based_classification': True
+            "success": False,
+            "error": str(e),
+            "classification": None,
+            "cloudinary_url": upload_result["url"],
+            "public_id": upload_result["public_id"]
         }
-    
-    # Override borderline cases with proper structural analysis
-    if (invoice_structure_score >= 3 and result['confidence'] < 0.3) or \
-       (invoice_indicators['tunisian_invoice'] and result['confidence'] < 0.4) or \
-       (invoice_indicators['invoice_keyword'] and invoice_indicators['tax_indicator'] and result['confidence'] < 0.35):
-        logger.info(f"Borderline case with invoice structural indicators ({invoice_structure_score}/7) - adjusting scores")
-        
-        # Boost invoice confidence for borderline cases with good structural indicators
-        if 'invoice' in result['confidence_scores']:
-            # Higher boost for Tunisian invoices with mixed French/Arabic
-            if invoice_indicators['tunisian_invoice']:
-                result['confidence_scores']['invoice'] = max(result['confidence_scores']['invoice'], 0.65)
-            else:
-                result['confidence_scores']['invoice'] = max(result['confidence_scores']['invoice'], 0.55)
-            
-            # Normalize scores
-            total = sum(result['confidence_scores'].values())
-            for key in result['confidence_scores']:
-                result['confidence_scores'][key] = result['confidence_scores'][key] / total
-            
-            # Update prediction and confidence
-            result['prediction'] = 'invoice'
-            result['confidence'] = result['confidence_scores']['invoice']
-            result['invoice_structure_analysis'] = True
-            logger.info(f"Adjusted invoice confidence to {result['confidence']}")
-            logger.info(f"Tunisian invoice indicators detected: {invoice_indicators['tunisian_invoice']}")
-    
-    # Filter model confidence scores to only supported types
-    filtered_scores = {k: v for k, v in result['confidence_scores'].items() if k in SUPPORTED_TYPES}
-    total = sum(filtered_scores.values())
-    if total > 0:
-        for k in filtered_scores:
-            filtered_scores[k] = filtered_scores[k] / total
-    else:
-        filtered_scores = {k: 1.0 / len(SUPPORTED_TYPES) for k in SUPPORTED_TYPES}
-    result['confidence_scores'] = filtered_scores
-    if result['prediction'] not in SUPPORTED_TYPES:
-        result['prediction'] = max(filtered_scores, key=filtered_scores.get)
-        result['confidence'] = filtered_scores[result['prediction']]
-    
-    logger.info(f"Classification result: {result}")
-    return result
 
 def start_api():
     """
