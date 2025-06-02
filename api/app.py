@@ -9,9 +9,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import config
-from preprocessor import extract_text_from_file, preprocess_for_model
+from utils.text_extraction import extract_text_from_file
+from preprocessor.text_processor import preprocess_for_model
 from models import get_model
-from utils import analyze_document
+from utils.cloudinary_utils import upload_document
+from utils.document_analyzer import analyze_document
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -41,6 +43,8 @@ class ClassificationResponse(BaseModel):
     confidence_scores: Dict[str, float]
     text_excerpt: str
     processing_time_ms: float
+    cloudinary_url: Optional[str] = None
+    public_id: Optional[str] = None
 
 class CommercialDocumentResponse(BaseModel):
     document_id: str
@@ -116,6 +120,9 @@ async def classify_document(
             temp.write(contents)
         
         try:
+            # Upload to Cloudinary
+            upload_result = upload_document(temp_path)
+            
             # Determine which model to use - default if none specified
             if model_type is None:
                 model_type = config.DEFAULT_MODEL
@@ -137,8 +144,10 @@ async def classify_document(
             # Use hybrid_predict if available
             if hasattr(model, 'hybrid_predict'):
                 result = model.hybrid_predict(text, document_id=document_id, text_excerpt=text[:500])
-                # Add processing time
+                # Add processing time and Cloudinary info
                 result['processing_time_ms'] = (time.time() - start_time) * 1000
+                result['cloudinary_url'] = upload_result.get('url')
+                result['public_id'] = upload_result.get('public_id')
                 return JSONResponse(content=result)
             else:
                 result = model.predict(processed_text)
@@ -149,7 +158,9 @@ async def classify_document(
                     confidence=result["confidence"],
                     confidence_scores=result["confidence_scores"],
                     text_excerpt=text[:500] + "..." if len(text) > 500 else text,
-                    processing_time_ms=processing_time_ms
+                    processing_time_ms=processing_time_ms,
+                    cloudinary_url=upload_result.get('url'),
+                    public_id=upload_result.get('public_id')
                 )
             
         finally:
