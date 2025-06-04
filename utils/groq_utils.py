@@ -137,4 +137,62 @@ def analyze_document_content(image_path: str) -> Dict[str, Any]:
             "error": str(e),
             "analysis": {},
             "model": "groq-vision"
-        } 
+        }
+
+def extract_document_info_with_groq(text: str, doc_type: str) -> Dict[str, Any]:
+    """
+    Extract document information using Groq AI
+    
+    Args:
+        text: Document text content
+        doc_type: Detected document type
+        
+    Returns:
+        Dictionary with extracted information
+    """
+    prompt = f"""
+    Extract ONLY the following information from this document:
+    1. Date (any date found in the document)
+    2. Client name (found after "Bill To:" or similar)
+    3. Client address (found after the client name)
+    
+    Document text:
+    {text}
+    
+    Return the information in JSON format with only these fields if found:
+    {{
+        "date": "extracted date",
+        "client_name": "extracted client name",
+        "client_address": "extracted client address"
+    }}
+    
+    If a field is not found, do not include it in the response.
+    """
+    
+    try:
+        # Call Groq AI
+        response = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",  # Using the same model as text extraction
+            messages=[
+                {"role": "system", "content": "You are a document analysis expert. Extract dates and client information from documents and return it in JSON format."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,  # Low temperature for more consistent results
+            max_tokens=1000,
+            response_format={"type": "json_object"}  # Ensure JSON response
+        )
+        
+        # Parse the response
+        extracted_info = response.choices[0].message.content
+        
+        # Convert string response to dictionary
+        import json
+        try:
+            return json.loads(extracted_info)
+        except json.JSONDecodeError:
+            # If Groq AI doesn't return valid JSON, return empty dict
+            return {}
+            
+    except Exception as e:
+        print(f"Error in Groq AI extraction: {str(e)}")
+        return {} 
