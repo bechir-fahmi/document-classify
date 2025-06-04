@@ -3,6 +3,8 @@ import base64
 from typing import Dict, Any, Optional
 from groq import Groq
 from dotenv import load_dotenv
+from datetime import datetime
+from dateutil import parser
 
 # Load environment variables
 load_dotenv()
@@ -188,11 +190,27 @@ def extract_document_info_with_groq(text: str, doc_type: str) -> Dict[str, Any]:
         # Convert string response to dictionary
         import json
         try:
-            return json.loads(extracted_info)
+            extracted_data = json.loads(extracted_info)
+            
+            # Standardize date format
+            if "date" in extracted_data and extracted_data["date"]:
+                try:
+                    # Attempt to parse the date string
+                    date_obj = parser.parse(extracted_data["date"])
+                    # Format to YYYY-MM-DD
+                    extracted_data["date"] = date_obj.strftime('%Y-%m-%d')
+                except (parser.ParserError, TypeError, ValueError) as e:
+                    # If parsing fails, print a message and keep the original date string
+                    print(f"Could not parse date: '{extracted_data['date']}'. Error: {e}")
+                    # Pass to keep the original date string if it's unparseable
+                    pass
+            
+            return extracted_data
         except json.JSONDecodeError:
             # If Groq AI doesn't return valid JSON, return empty dict
+            print(f"Failed to decode JSON from Groq response: {extracted_info}")
             return {}
             
     except Exception as e:
         print(f"Error in Groq AI extraction: {str(e)}")
-        return {} 
+        return {}
