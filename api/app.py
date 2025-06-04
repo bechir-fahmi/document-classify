@@ -13,7 +13,10 @@ from utils.text_extraction import extract_text_from_file
 from preprocessor.text_processor import preprocess_for_model
 from models import get_model
 from utils.cloudinary_utils import upload_document
-from utils.document_analyzer import analyze_document
+from utils.document_analyzer import analyze_document, extract_document_info
+from utils.groq_utils import extract_document_info_with_groq
+import cloudinary
+import cloudinary.uploader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -38,13 +41,17 @@ app.add_middleware(
 # Define response models
 class ClassificationResponse(BaseModel):
     document_id: str
-    prediction: str
-    confidence: float
+    model_prediction: str
+    model_confidence: float
+    rule_based_prediction: str
+    final_prediction: str
+    confidence_flag: str
     confidence_scores: Dict[str, float]
     text_excerpt: str
     processing_time_ms: float
-    cloudinary_url: Optional[str] = None
-    public_id: Optional[str] = None
+    cloudinary_url: str
+    public_id: str
+    extracted_info: Optional[Dict[str, Any]] = None
 
 class CommercialDocumentResponse(BaseModel):
     document_id: str
@@ -92,87 +99,60 @@ async def list_models():
     }
 
 @app.post("/classify", response_model=ClassificationResponse)
-async def classify_document(
-    file: UploadFile = File(...),
-    model_type: Optional[str] = Form(None)
-):
-    """
-    Classify a document
-    
-    Args:
-        file: Document file (PDF, image)
-        model_type: Type of model to use (optional)
-        
-    Returns:
-        Classification result
-    """
+async def classify_document(file: UploadFile = File(...)):
     start_time = time.time()
     
     try:
-        # Generate a unique ID for this document
-        document_id = str(uuid.uuid4())
+        # Save the uploaded file temporarily
+        temp_file_path = f"temp_{file.filename}"
+        with open(temp_file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
         
-        # Create temp file to store the uploaded file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp:
-            temp_path = temp.name
-            # Write uploaded file to temp file
-            contents = await file.read()
-            temp.write(contents)
+        # Extract text from the document
+        text = extract_text_from_file(temp_file_path)
         
-        try:
-            # Upload to Cloudinary
-            upload_result = upload_document(temp_path)
-            
-            # Determine which model to use - default if none specified
-            if model_type is None:
-                model_type = config.DEFAULT_MODEL
-            
-            # Extract text from file
-            logger.info(f"Extracting text from {file.filename}")
-            text = extract_text_from_file(file_path=temp_path)
-            
-            # Preprocess text for the model
-            logger.info("Preprocessing text")
-            processed_text = preprocess_for_model(text, model_type=model_type)
-            
-            # Get the model
-            logger.info(f"Getting model: {model_type}")
-            model = get_cached_model(model_type)
-            
-            # Get prediction
-            logger.info("Making prediction")
-            # Use hybrid_predict if available
-            if hasattr(model, 'hybrid_predict'):
-                result = model.hybrid_predict(text, document_id=document_id, text_excerpt=text[:500])
-                # Add processing time and Cloudinary info
-                result['processing_time_ms'] = (time.time() - start_time) * 1000
-                result['cloudinary_url'] = upload_result.get('url')
-                result['public_id'] = upload_result.get('public_id')
-                return JSONResponse(content=result)
-            else:
-                result = model.predict(processed_text)
-                processing_time_ms = (time.time() - start_time) * 1000
-                return ClassificationResponse(
-                    document_id=document_id,
-                    prediction=result["prediction"],
-                    confidence=result["confidence"],
-                    confidence_scores=result["confidence_scores"],
-                    text_excerpt=text[:500] + "..." if len(text) > 500 else text,
-                    processing_time_ms=processing_time_ms,
-                    cloudinary_url=upload_result.get('url'),
-                    public_id=upload_result.get('public_id')
-                )
-            
-        finally:
-            # Clean up temp file
-            os.unlink(temp_path)
-            
-    except Exception as e:
-        logger.error(f"Error classifying document: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error classifying document: {str(e)}"
+        # Analyze document type
+        doc_type = analyze_document(temp_file_path)
+        
+        # Get model prediction
+        model = get_cached_model()
+        model_result = model.predict(text)
+        
+        # Extract information using Groq AI
+        extracted_info = extract_document_info_with_groq(text, doc_type)
+        
+        # Upload to Cloudinary
+        cloudinary_response = cloudinary.uploader.upload(
+            temp_file_path,
+            resource_type="raw",
+            folder="documents"
         )
+        
+        # Clean up temporary file
+        os.remove(temp_file_path)
+        
+        # Calculate processing time
+        processing_time = (time.time() - start_time) * 1000
+        
+        # Return response
+        return {
+            "document_id": cloudinary_response["public_id"],
+            "model_prediction": model_result["prediction"],
+            "model_confidence": model_result["confidence"],
+            "rule_based_prediction": doc_type,
+            "final_prediction": doc_type if doc_type != "❓ Unknown Document Type" else model_result["prediction"],
+            "confidence_flag": "high" if model_result["confidence"] >= 0.7 else "low",
+            "confidence_scores": model_result["confidence_scores"],
+            "text_excerpt": text[:500],  # First 500 characters
+            "processing_time_ms": processing_time,
+            "cloudinary_url": cloudinary_response["secure_url"],
+            "public_id": cloudinary_response["public_id"],
+            "extracted_info": extracted_info
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/classify-commercial", response_model=CommercialDocumentResponse)
 async def classify_commercial_document(
