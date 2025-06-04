@@ -239,51 +239,146 @@ def analyze_document(file_path):
         # --- NEW: Invoice with number, allowing for newlines or spaces ---
         (re.search(r'invoice\s*[#:n°\n\r\s]+\w+', lower_text))
     ):
-        return "Invoice"
+        return "invoice"
 
     # 2. Quote / Estimate (Devis / عرض أسعار)
     if (
         "devis" in lower_text and ("offre" in lower_text or "prix estimatif" in lower_text)
     ):
-        return "Quote"
+        return "quote"
 
     # 3. Purchase Order (Bon de commande / أمر شراء)
     if (
         "bon de commande" in lower_text or "commande n" in lower_text
     ):
-        return "Purchase Order"
+        return "purchase_order"
 
     # 4. Delivery Note (Bon de livraison / مذكرة تسليم)
     if "bon de livraison" in lower_text:
-        return "Delivery Note"
+        return "delivery_note"
 
     # 5. Receipt / Payment Proof (Reçu / إيصال / سند دفع)
     if (
         "reçu" in lower_text or "justificatif de paiement" in lower_text
     ):
-        return "Receipt"
+        return "receipt"
 
     # 6. Bank Statement (Relevé bancaire / كشف حساب)
     if (
         "relevé de compte" in lower_text or
         ("solde" in lower_text and ("crédit" in lower_text or "débit" in lower_text))
     ):
-        return "Bank Statement"
+        return "bank_statement"
 
     # 7. Expense Report / Reimbursement (Note de frais / مذكرة مصاريف)
     if (
         "note de frais" in lower_text or "remboursement" in lower_text or "justificatif" in lower_text
     ):
-        return "Expense Report"
+        return "expense_report"
 
     # 8. Payslip (Bulletin de paie / كشف راتب)
     if (
         "bulletin de paie" in lower_text or "salaire brut" in lower_text
     ):
-        return "Payslip"
+        return "payslip"
 
     # If no rule matches
     return "❓ Unknown Document Type"
+
+def extract_client_info(text):
+    """
+    Extract client information from document text
+    
+    Args:
+        text: Document text content
+        
+    Returns:
+        Dictionary with client information
+    """
+    client_info = {}
+    
+    # Common client patterns
+    client_patterns = [
+        r'(?:bill to|client|customer|client|client)\s*:?\s*([^\n]+)',
+        r'(?:destinataire|destinataire)\s*:?\s*([^\n]+)',
+        r'(?:client|client)\s*:?\s*([^\n]+)'
+    ]
+    
+    # Try each pattern
+    for pattern in client_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            client_info['client_name'] = match.group(1).strip()
+            break
+    
+    # Extract address if available - updated pattern to capture multi-line addresses
+    address_pattern = r'(?:bill to|client|customer)\s*:?\s*[^\n]+\n([^\n]+(?:\n[^\n]+){0,3})'
+    address_match = re.search(address_pattern, text, re.IGNORECASE)
+    if address_match:
+        client_info['client_address'] = address_match.group(1).strip()
+    
+    return client_info
+
+def normalize_date(date_str):
+    """
+    Normalize date string to YYYY-MM-DD format
+    Handles various input formats:
+    - DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+    - DD Month YYYY (e.g., "15 May 2024")
+    - Month DD, YYYY (e.g., "May 15, 2024")
+    - YYYY/MM/DD or YYYY-MM-DD or YYYY.MM.DD
+    """
+    if not date_str:
+        return None
+        
+    # Dictionary for month names
+    month_map = {
+        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
+        'may': '05', 'jun': '06', 'jul': '07', 'aug': '08',
+        'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12',
+        'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04',
+        'mai': '05', 'juin': '06', 'juillet': '07', 'août': '08',
+        'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'
+    }
+    
+    try:
+        # Try DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+        if re.match(r'\d{1,2}[./-]\d{1,2}[./-]\d{2,4}', date_str):
+            parts = re.split(r'[./-]', date_str)
+            if len(parts) == 3:
+                day, month, year = parts
+                # Handle 2-digit years
+                if len(year) == 2:
+                    year = '20' + year
+                return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        
+        # Try DD Month YYYY
+        match = re.match(r'(\d{1,2})\s+([a-zA-Zéèêëàâçîïôöûüù]+)\s+(\d{4})', date_str, re.IGNORECASE)
+        if match:
+            day, month, year = match.groups()
+            month = month.lower()[:3]  # Get first 3 chars of month name
+            if month in month_map:
+                return f"{year}-{month_map[month]}-{day.zfill(2)}"
+        
+        # Try Month DD, YYYY
+        match = re.match(r'([a-zA-Zéèêëàâçîïôöûüù]+)\s+(\d{1,2}),?\s+(\d{4})', date_str, re.IGNORECASE)
+        if match:
+            month, day, year = match.groups()
+            month = month.lower()[:3]  # Get first 3 chars of month name
+            if month in month_map:
+                return f"{year}-{month_map[month]}-{day.zfill(2)}"
+        
+        # Try YYYY/MM/DD or YYYY-MM-DD or YYYY.MM.DD
+        if re.match(r'\d{4}[./-]\d{1,2}[./-]\d{1,2}', date_str):
+            parts = re.split(r'[./-]', date_str)
+            if len(parts) == 3:
+                year, month, day = parts
+                return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error normalizing date {date_str}: {str(e)}")
+        return None
 
 def extract_document_info(text, doc_type):
     """
@@ -298,15 +393,54 @@ def extract_document_info(text, doc_type):
     """
     info = {}
     
-    # Common patterns for all document types
-    date_pattern = r'date\s*:?\s*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{2,4})'
-    reference_pattern = r'[#:n°]?\s*([a-z0-9\-]{6,})'
-    amount_pattern = r'(?:total|amount|montant|somme|sum)\s*:?\s*[$€£]?\s*(\d+[.,]\d+)'
+    # Common patterns for all document types - updated date patterns
+    date_patterns = [
+        # Invoice date patterns
+        r'(?:invoice|facture)\s+date\s*:?\s*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4})',
+        r'date\s*:?\s*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4})',
+        # Due date patterns
+        r'due\s+date\s*:?\s*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4})',
+        # Generic date patterns
+        r'(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4})',
+        r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})',
+        # French date patterns
+        r'(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})',
+        # Date with month names
+        r'(?:le\s+)?(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})',
+        # Date with month abbreviations
+        r'(?:le\s+)?(\d{1,2}\s+(?:janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)\.?\s+\d{4})'
+    ]
     
-    # Try to extract date
-    date_match = re.search(date_pattern, text, re.IGNORECASE)
-    if date_match:
-        info['date'] = date_match.group(1)
+    # Try each date pattern
+    for pattern in date_patterns:
+        date_match = re.search(pattern, text, re.IGNORECASE)
+        if date_match:
+            raw_date = date_match.group(1)
+            normalized_date = normalize_date(raw_date)
+            if normalized_date:
+                info['date'] = normalized_date
+                break
+    
+    # Extract due date if available
+    due_date_patterns = [
+        r'due\s+date\s*:?\s*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4})',
+        r'date\s+d\'échéance\s*:?\s*(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})',
+        r'échéance\s*:?\s*(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})',
+        r'date\s+de\s+paiement\s*:?\s*(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})'
+    ]
+    
+    for pattern in due_date_patterns:
+        due_date_match = re.search(pattern, text, re.IGNORECASE)
+        if due_date_match:
+            raw_due_date = due_date_match.group(1)
+            normalized_due_date = normalize_date(raw_due_date)
+            if normalized_due_date:
+                info['due_date'] = normalized_due_date
+                break
+    
+    # Extract client information
+    client_info = extract_client_info(text)
+    info.update(client_info)
     
     # Extract document-specific information
     if doc_type == "invoice":
@@ -408,3 +542,33 @@ def extract_document_info(text, doc_type):
             info['net_pay'] = net_match.group(1)
     
     return info
+
+def process_document_response(text, doc_type, original_response):
+    """
+    Process document text and enhance the API response with additional information
+    
+    Args:
+        text: Document text content
+        doc_type: Detected document type
+        original_response: Original API response dictionary
+        
+    Returns:
+        Enhanced API response dictionary
+    """
+    # Extract additional information
+    doc_info = extract_document_info(text, doc_type)
+    
+    # Create enhanced response
+    enhanced_response = original_response.copy()
+    
+    # Add extracted information
+    if 'date' in doc_info:
+        enhanced_response['extracted_date'] = doc_info['date']
+    
+    if 'client_name' in doc_info:
+        enhanced_response['client_name'] = doc_info['client_name']
+    
+    if 'client_address' in doc_info:
+        enhanced_response['client_address'] = doc_info['client_address']
+    
+    return enhanced_response
