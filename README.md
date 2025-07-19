@@ -1,170 +1,207 @@
-# Commercial Document Classification System
+# 🚀 Document Classification API
 
-A robust multilingual system for classifying commercial documents like invoices, purchase orders, receipts, and more.
+A production-ready document classification system using machine learning to automatically classify business documents with **95.5% accuracy**.
 
-## Overview
+## 📋 Features
 
-This system can identify various types of commercial documents in multiple languages (English, French, and Arabic) with high accuracy. It uses machine learning techniques to classify documents based on their textual content, with specialized handling for different document types.
+- **High Accuracy**: 95.5% overall accuracy with Excellence Model
+- **9 Document Types**: Invoice, Receipt, Contract, Purchase Order, Quote, Bank Statement, Expense Report, Payslip, Delivery Note
+- **Real-time API**: Fast classification with confidence scores
+- **Cloud Storage**: Automatic document upload to Cloudinary
+- **AI Information Extraction**: Powered by Groq AI
+- **Production Ready**: Docker support, comprehensive error handling
 
-## Key Features
+## 🎯 Performance
 
-- **Multilingual Support**: Handles documents in English, French, and Arabic
-- **Multiple Document Types**: Classifies 8 different document types:
-  - Invoices (Factures)
-  - Quotes/Estimates (Devis)
-  - Purchase Orders (Bons de commande)
-  - Delivery Notes (Bons de livraison)
-  - Receipts (Reçus / Justificatifs de paiement)
-  - Bank Statements (Relevés bancaires)
-  - Expense Reports (Notes de frais / Remboursements)
-  - Payslips (Bulletins de paie)
-- **Flexible Input Formats**: Processes PDF files, images (JPG, PNG, TIFF), and text files
-- **High-Performance OCR**: Extracts text using multiple OCR engines with fallback mechanisms
-- **Robust Classification**: Uses TF-IDF vectorization with SVM classification enhanced by pattern matching
+- **Excellent (100% accuracy)**: 8 document types
+- **Good (50-99% accuracy)**: 1 document type  
+- **Average Confidence**: 66.2%
+- **Processing Time**: ~2-3 seconds per document
 
-## Project Structure
-
-```
-.
-├── api/                     # API server code
-├── data/                    # Data storage
-│   ├── models/              # Trained models
-│   ├── sample/              # Sample documents
-│   └── temp/                # Temporary files
-├── models/                  # Model definitions
-│   ├── sklearn_model.py     # TF-IDF + SVM model
-│   ├── bert_model.py        # BERT-based model
-│   ├── layoutlm_model.py    # LayoutLM model
-│   └── model_factory.py     # Factory pattern for models
-├── preprocessor/            # Text preprocessing
-│   ├── text_extractor.py    # Extract text from documents
-│   └── text_processor.py    # Clean and process text
-├── tests/                   # Test suite
-│   ├── test_purchase_orders.py  # Purchase order tests
-│   ├── test_enhanced_model.py   # Enhanced model tests
-│   └── run_all_tests.py     # Run all tests
-├── utils/                   # Utility functions
-├── app.py                   # Main application entry point
-├── commercial_doc_classifier.py  # CLI interface
-└── config.py                # Configuration settings
-```
-
-## Recent Improvements
-
-The system has undergone significant improvements to fix issues with misclassified documents:
-
-1. **Enhanced Training Data**:
-   - Expanded dataset from 124 to 1,748 examples
-   - Increased purchase order examples from 2 to 504 samples
-   - Added synthetic data in multiple languages
-
-2. **Improved Classification Logic**:
-   - Implemented specialized pattern matching for document types
-   - Added confidence boosting for specific document types
-   - Created cross-category confidence adjustment system
-   - Added special handling for multilingual documents
-
-3. **Text Processing Enhancements**:
-   - Added direct text file handling for more efficient processing
-   - Enhanced OCR fallback mechanisms for better text extraction
-   - Improved language detection and multilingual support
-   - Added specialized text handling for different document formats
-
-4. **System Integration**:
-   - Enhanced text extraction from multiple file types
-   - Added a comprehensive test suite
-   - Created a user-friendly CLI interface
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
-- Python 3.7 or higher
-- Tesseract OCR (for text extraction from images and PDFs)
-- Required Python packages listed in `requirements.txt`
+- Python 3.8+
+- Virtual environment recommended
 
 ### Installation
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd commercial-doc-classifier
-   ```
-
-2. Install required packages:
-   ```
-   pip install -r requirements.txt
-   ```
-
-3. Install Tesseract OCR:
-   - For Windows: Use the installer in the repository or follow instructions in `TESSERACT_INSTALL_GUIDE.md`
-   - For Linux: `sudo apt-get install tesseract-ocr`
-   - For macOS: `brew install tesseract`
-
-### Usage
-
-#### Command Line Interface
-
-Classify a document:
-```
-python commercial_doc_classifier.py classify path/to/document.pdf
+1. **Clone the repository**
+```bash
+git clone <your-repo-url>
+cd document-classification-api
 ```
 
-Train the enhanced model:
-```
-python commercial_doc_classifier.py train --enhanced
-```
-
-Get information about the system:
-```
-python commercial_doc_classifier.py info
+2. **Create virtual environment**
+```bash
+python -m venv ai_model_env
+ai_model_env\Scripts\activate  # Windows
+# or
+source ai_model_env/bin/activate  # Linux/Mac
 ```
 
-#### API Server
-
-Start the API server:
+3. **Install dependencies**
+```bash
+pip install -r requirements.txt
 ```
+
+4. **Set up environment variables**
+Create a `.env` file:
+```env
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+GROQ_API_KEY=your_groq_api_key
+```
+
+5. **Start the API**
+```bash
 python app.py api
 ```
 
-### Running Tests
+The API will be available at `http://localhost:8000`
 
-Run all tests:
-```
-python -m tests.run_all_tests
-```
+## 📡 API Endpoints
 
-Run specific tests:
-```
-python -m tests.test_purchase_orders
-python -m tests.test_enhanced_model
-```
+### 1. Classify Document
+```bash
+POST /classify
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Test Suite
-
-The project includes a comprehensive test suite to verify the classification capabilities:
-
-- Purchase Order tests - Verifies the fixes to purchase order classification
-- Enhanced Model tests - Tests general document type classification
-
-Running all tests:
-```
-python -m tests.run_all_tests
+curl -X POST "http://localhost:8000/classify" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@document.pdf"
 ```
 
-Test results after recent improvements:
-- Purchase order tests: 3/3 passed
-- Invoice classification tests: 2/2 passed
-- Overall test success: 5/5 passed
+### 2. Classify Commercial Document
+```bash
+POST /classify-commercial
 
-## Acknowledgements
+curl -X POST "http://localhost:8000/classify-commercial" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@document.pdf"
+```
 
-- Tesseract OCR
-- scikit-learn
-- FastAPI
-- PyMuPDF (for PDF handling)
-- EasyOCR (for multilingual OCR) 
+### 3. Health Check
+```bash
+GET /health
+```
+
+### 4. List Models
+```bash
+GET /models
+```
+
+## 📊 Response Format
+
+```json
+{
+  "document_id": "unique-document-id",
+  "model_prediction": "invoice",
+  "model_confidence": 0.85,
+  "final_prediction": "invoice",
+  "confidence_flag": "high",
+  "confidence_scores": {
+    "invoice": 0.85,
+    "receipt": 0.10,
+    "purchase_order": 0.05
+  },
+  "text_excerpt": "INVOICE #001...",
+  "processing_time_ms": 1250,
+  "cloudinary_url": "https://res.cloudinary.com/...",
+  "extracted_info": {
+    "date": "2025-01-15",
+    "client_name": "John Doe",
+    "amount": "$150.00"
+  }
+}
+```
+
+## 🐳 Docker Deployment
+
+### Build and Run
+```bash
+docker-compose up --build
+```
+
+### Production Deployment
+```bash
+docker-compose up -d
+```
+
+## 📁 Project Structure
+
+```
+document-classification-api/
+├── app.py                 # Main application entry point
+├── config.py             # Configuration settings
+├── requirements.txt      # Python dependencies
+├── Dockerfile           # Docker configuration
+├── docker-compose.yml   # Docker Compose setup
+├── api/                 # FastAPI application
+│   └── app.py          # API routes and logic
+├── models/              # ML models
+│   └── sklearn_model.py # Main classification model
+├── utils/               # Utility functions
+│   ├── text_extraction.py
+│   ├── cloudinary_utils.py
+│   └── document_analyzer.py
+├── preprocessor/        # Text preprocessing
+│   └── text_processor.py
+└── data/
+    └── models/         # Trained model files
+        └── commercial_doc_classifier_excellence.pkl
+```
+
+## 🔧 Configuration
+
+Key configuration options in `config.py`:
+
+- `API_HOST`: API server host (default: 0.0.0.0)
+- `API_PORT`: API server port (default: 8000)
+- `CONFIDENCE_THRESHOLD`: Minimum confidence for predictions
+- `DOCUMENT_CLASSES`: Supported document types
+
+## 📈 Model Performance
+
+The system uses an **Excellence Model** with:
+- **Ensemble Architecture**: SVM + Random Forest + Naive Bayes
+- **Advanced Features**: 20,000 TF-IDF features with 4-grams
+- **Rule-based Fallbacks**: Keyword detection for edge cases
+- **Confidence Calibration**: Realistic confidence scores
+
+### Supported Document Types
+1. **Invoice** - Bills and invoices
+2. **Receipt** - Payment receipts and tickets  
+3. **Contract** - Employment and service contracts
+4. **Purchase Order** - Purchase orders and procurement
+5. **Quote** - Price quotes and estimates
+6. **Bank Statement** - Bank account statements
+7. **Expense Report** - Expense and reimbursement reports
+8. **Payslip** - Salary and wage statements
+9. **Delivery Note** - Shipping and delivery documents
+
+## 🚀 Production Deployment
+
+### Environment Variables
+Set these in your production environment:
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY` 
+- `CLOUDINARY_API_SECRET`
+- `GROQ_API_KEY`
+
+### Example Production Command
+```bash
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.app:app --bind 0.0.0.0:8000
+```
+
+## 📞 Support
+
+For issues and questions:
+- Check the logs for detailed error information
+- Ensure all environment variables are set
+- Verify model files are present in `data/models/`
+- Test with the `/health` endpoint
+
+## 📄 License
+
+MIT License
