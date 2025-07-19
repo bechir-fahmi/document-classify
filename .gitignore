@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -16,48 +15,149 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual Environment
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
+ai_model_env/
 
-# Data files
-data/*
-!data/.gitkeep
+# Spyder project settings
+.spyderproject
+.spyproject
 
-# Models and temp files
-*.pkl
-*.h5
-*.pt
-*.bin
-*.pth
-*.model
-*.weights
-*.temp
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Project specific
+temp_*
 *.tmp
+test_results*.json
+*_test.py
+*_analysis.py
+confidence_*.png
+*_comparison.png
+*_matrix.png
+comprehensive_*.png
+class_distribution.png
 
-# Logs
-logs/
-*.log
+# Data files (keep models but ignore temp data)
+data/kaggle
+data/samples/generated_*.csv
+data/samples/augmented_*.csv
+data/samples/final_*.csv
+placeholders_preview.csv
 
-# IDE files
-.idea/
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Jupyter Notebooks
-.ipynb_checkpoints
-*.ipynb
+# Logs
+*.log
+logs/
 
-# Environment variables
-.env
-.env.* 
+# Temporary files
+temp/
+tmp/
