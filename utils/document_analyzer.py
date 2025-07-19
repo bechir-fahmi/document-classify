@@ -178,13 +178,39 @@ DOCUMENT_PATTERNS = {
             r'congés\s*payés',
             r'heures\s*travaillées'
         ]
+    },
+    "credit_note": {
+        "keywords": ["credit note", "note de crédit", "avoir", "crédit client"],
+        "strong_patterns": [r'credit\s*note', r'note\s*de\s*crédit', r'avoir']
+    },
+    "debit_note": {
+        "keywords": ["debit note", "note de débit", "débiter", "débit client"],
+        "strong_patterns": [r'debit\s*note', r'note\s*de\s*débit']
+    },
+    "tax_declaration": {
+        "keywords": ["tax declaration", "déclaration fiscale", "impôt", "taxe", "déclaration de revenus"],
+        "strong_patterns": [r'tax\s*declaration', r'déclaration\s*fiscale', r'impôt']
+    },
+    "fixed_asset_document": {
+        "keywords": ["fixed asset", "immobilisation", "asset register", "registre des immobilisations"],
+        "strong_patterns": [r'fixed\s*asset', r'immobilisation', r'asset\s*register']
+    },
+    "inventory_document": {
+        "keywords": ["inventory", "inventaire", "stock", "inventory report", "rapport d'inventaire"],
+        "strong_patterns": [r'inventory', r'inventaire', r'stock']
+    },
+    "journal_entry": {
+        "keywords": ["journal entry", "écriture comptable", "journal comptable", "entry number"],
+        "strong_patterns": [r'journal\s*entry', r'écriture\s*comptable', r'journal\s*comptable']
     }
 }
 
 # Define the supported document types
 SUPPORTED_TYPES = [
     "invoice", "quote", "purchase_order", "delivery_note", 
-    "receipt", "bank_statement", "expense_report", "payslip"
+    "receipt", "bank_statement", "expense_report", "payslip",
+    "credit_note", "debit_note", "tax_declaration", "fixed_asset_document",
+    "inventory_document", "journal_entry"
 ]
 
 def normalize_date(date_str):
