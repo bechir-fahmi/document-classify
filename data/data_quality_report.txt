@@ -1,0 +1,44 @@
+================================================================================
+TRAINING DATA QUALITY REPORT
+================================================================================
+
+📊 DATASET OVERVIEW
+----------------------------------------
+Total samples: 11,067
+Unique labels: 12
+Average text length: 372.2 characters
+Dataset size on disk: ~3.9 MB
+
+🎯 QUALITY ASSESSMENT
+----------------------------------------
+⚠️  FAIR: Some issues detected, consider cleaning before training.
+Overall Quality Score: B (Fair)
+
+⚠️  ISSUES DETECTED
+----------------------------------------
+1. Duplicate texts found
+2. Moderate label imbalance detected
+3. OCR artifacts detected
+
+📊 LABEL DISTRIBUTION
+----------------------------------------
+receipt                    2,000 samples ( 18.1%)
+purchase_order             2,000 samples ( 18.1%)
+invoice                    1,693 samples ( 15.3%)
+shipping_orders            1,618 samples ( 14.6%)
+delivery_note              1,311 samples ( 11.8%)
+expense_report               502 samples (  4.5%)
+quote                        502 samples (  4.5%)
+bank_statement               502 samples (  4.5%)
+payslip                      502 samples (  4.5%)
+inventory_document           208 samples (  1.9%)
+report                       207 samples (  1.9%)
+contract                      22 samples (  0.2%)
+
+💡 RECOMMENDATIONS
+----------------------------------------
+• Remove duplicate texts to prevent overfitting
+• Clean OCR artifacts for better text quality
+• Consider data augmentation for underrepresented classes
+
+================================================================================
