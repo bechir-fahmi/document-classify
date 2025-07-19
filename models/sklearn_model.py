@@ -48,6 +48,8 @@ class SklearnClassifier:
     """
     
     def __init__(self):
+        # Try to load the excellence model first, fallback to standard model
+        self.excellence_model_path = os.path.join(config.MODEL_DIR, "commercial_doc_classifier_excellence.pkl")
         self.model_path = os.path.join(config.MODEL_DIR, "sklearn_tfidf_svm.pkl")
         self.pipeline = None
         self.classes = config.DOCUMENT_CLASSES
@@ -55,14 +57,27 @@ class SklearnClassifier:
     
     def load_model(self):
         """
-        Load the model from disk if it exists
+        Load the model from disk if it exists - try excellence model first
         """
+        # Try to load the excellence model first
+        if os.path.exists(self.excellence_model_path):
+            logger.info(f"Loading Excellence model from {self.excellence_model_path}")
+            try:
+                with open(self.excellence_model_path, 'rb') as f:
+                    self.pipeline = pickle.load(f)
+                logger.info("Excellence model loaded successfully! 🎉")
+                return True
+            except Exception as e:
+                logger.error(f"Error loading excellence model: {str(e)}")
+                logger.info("Falling back to standard model...")
+        
+        # Fallback to standard model
         if os.path.exists(self.model_path):
             logger.info(f"Loading existing model from {self.model_path}")
             try:
                 with open(self.model_path, 'rb') as f:
                     self.pipeline = pickle.load(f)
-                logger.info("Model loaded successfully")
+                logger.info("Standard model loaded successfully")
                 return True
             except Exception as e:
                 logger.error(f"Error loading model: {str(e)}")
