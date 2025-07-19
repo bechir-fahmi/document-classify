@@ -35,6 +35,12 @@ DOCUMENT_CLASSES = [
     "bank_statement",  # Relevé bancaire
     "expense_report",  # Note de frais / Remboursement
     "payslip",         # Bulletin de paie
+    "credit_note",     # Note de crédit
+    "debit_note",      # Note de débit
+    "tax_declaration", # Déclaration fiscale
+    "fixed_asset_document", # Document d'immobilisation
+    "inventory_document",   # Document d'inventaire
+    "journal_entry",        # Écriture comptable
     "unknown"          # For any other document type
 ]
 
