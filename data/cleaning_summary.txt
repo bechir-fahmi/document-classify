@@ -1,0 +1,20 @@
+DATASET CLEANING SUMMARY
+========================================
+
+Final dataset size: 11,067 samples
+Number of labels: 12
+Average text length: 372.2 characters
+
+Label distribution:
+  receipt: 2,000 samples
+  purchase_order: 2,000 samples
+  invoice: 1,693 samples
+  shipping_orders: 1,618 samples
+  delivery_note: 1,311 samples
+  expense_report: 502 samples
+  quote: 502 samples
+  bank_statement: 502 samples
+  payslip: 502 samples
+  inventory_document: 208 samples
+  report: 207 samples
+  contract: 22 samples
