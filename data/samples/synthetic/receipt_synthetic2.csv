@@ -1,0 +1,6 @@
+text,label
+"RECEIPT\nReceipt Number: RCPT-20006\nDate: 2025-05-16\nCustomer: Delta Inc\nAmount Paid: $2,100.00\nPayment Method: Credit Card\nFor: Software License\nThank you for your payment!",receipt
+"RECEIPT\nReceipt Number: RCPT-20007\nDate: 2025-05-17\nCustomer: Epsilon Ltd\nAmount Paid: $4,500.00\nPayment Method: Bank Transfer\nFor: Annual Subscription\nAuthorized Signature: ________",receipt
+"RECEIPT\nReceipt Number: RCPT-20008\nDate: 2025-05-18\nCustomer: Zeta Group\nAmount Paid: $1,750.00\nPayment Method: Cash\nFor: Maintenance Services\nThank you!",receipt
+"REÇU DE PAIEMENT\nN° Reçu: RCPT-20009\nDate: 16/05/2025\nClient: Entreprise Oméga\nMontant: 2 300,00€\nMode de paiement: Carte bancaire\nPour: Services informatiques\nSignature: ________",receipt
+"إيصال\nرقم الإيصال: RCPT-20010\nتاريخ: 2025-05-17\nالعميل: شركة التقنية\nالمبلغ المدفوع: 2100.00\nطريقة الدفع: نقدًا\nعن: خدمات صيانة\nشكرًا لدفعكم!",receipt

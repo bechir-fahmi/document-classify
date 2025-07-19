@@ -1,0 +1,121 @@
+text,label
+"DEVIS
+N° Devis: DEV-1234
+Date: 15/05/2023
+Client: ABC Company
+Désignation: Installation système informatique
+Montant HT: 2500.00
+TVA: 500.00
+Total TTC: 3000.00
+Validité: 30 jours",quote
+"QUOTATION
+Quote #: QT-5678
+Date: May 20, 2023
+Customer: XYZ Corporation
+Description: IT Consulting Services
+Subtotal: $3,000.00
+Tax: $300.00
+Total: $3,300.00
+Valid until: June 20, 2023",quote
+"BON DE COMMANDE
+N° BC: BC-7890
+Date: 10/06/2023
+Fournisseur: Tech Solutions
+Articles: 5 x Ordinateurs portables
+Prix unitaire: 800.00€
+Total: 4000.00€
+Délai de livraison: 10 jours",purchase_order
+"PURCHASE ORDER
+PO Number: PO-4567
+Date: June 5, 2023
+Vendor: Office Supplies Inc.
+Items: 20 x Office chairs
+Unit price: $120.00
+Total: $2,400.00
+Delivery terms: FOB Destination",purchase_order
+"BON DE LIVRAISON
+N° BL: BL-1234
+Date: 20/06/2023
+Client: Martin SARL
+Commande N°: BC-7890
+Articles livrés: 5 x Ordinateurs portables
+Transporteur: Express Delivery
+Signature: _________",delivery_note
+"DELIVERY NOTE
+Delivery #: DN-5678
+Date: June 25, 2023
+Customer: Johnson Ltd
+Order reference: PO-4567
+Items delivered: 20 x Office chairs
+Carrier: Fast Logistics
+Received by: _________",delivery_note
+"REÇU DE PAIEMENT
+N° Reçu: RC-1234
+Date: 30/06/2023
+Client: Dupont & Fils
+Montant: 750.00€
+Mode de paiement: Carte bancaire
+Pour: Services de maintenance
+Signature: _________",receipt
+"PAYMENT RECEIPT
+Receipt #: REC-5678
+Date: June 30, 2023
+Customer: Smith & Co
+Amount: $1,200.00
+Payment method: Bank transfer
+For: Consulting services
+Authorized signature: _________",receipt
+"RELEVÉ BANCAIRE
+Compte N°: FR76 12345 12345 12345
+Titulaire: Jean Martin
+Période: 01/06/2023 - 30/06/2023
+Solde initial: 2,500.00€
+Total des débits: 1,200.00€
+Total des crédits: 3,000.00€
+Solde final: 4,300.00€",bank_statement
+"BANK STATEMENT
+Account #: GB29 NWBK 6016 1331 9268 19
+Account holder: John Smith
+Period: June 1, 2023 - June 30, 2023
+Opening balance: £3,200.00
+Total debits: £1,500.00
+Total credits: £2,100.00
+Closing balance: £3,800.00",bank_statement
+"NOTE DE FRAIS
+Employé: Marie Dubois
+Département: Ventes
+Date: 15/07/2023
+Type de dépense: Déplacement client
+Montant: 185.50€
+Justificatif: Ticket de train + Taxi
+Approuvé par: _________",expense_report
+"EXPENSE REPORT
+Employee: Sarah Williams
+Department: Marketing
+Date: July 10, 2023
+Expense type: Client meeting
+Amount: $210.75
+Receipts: Airline ticket + Meal
+Approved by: _________",expense_report
+"BULLETIN DE PAIE
+Employeur: Global Enterprises
+Employé: Pierre Durand
+Période: Juin 2023
+Salaire brut: 3,500.00€
+Cotisations: 1,050.00€
+Net à payer: 2,450.00€
+Date de paiement: 30/06/2023",payslip
+"PAYSLIP
+Employer: Tech Innovations Inc.
+Employee: James Brown
+Period: June 2023
+Gross salary: $4,200.00
+Deductions: $1,260.00
+Net pay: $2,940.00
+Payment date: June 30, 2023",payslip 
+PLACEHOLDER for credit_note,credit_note
+PLACEHOLDER for debit_note,debit_note
+PLACEHOLDER for tax_declaration,tax_declaration
+PLACEHOLDER for fixed_asset_document,fixed_asset_document
+PLACEHOLDER for inventory_document,inventory_document
+PLACEHOLDER for journal_entry,journal_entry

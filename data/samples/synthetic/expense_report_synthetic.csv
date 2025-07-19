@@ -1,0 +1,701 @@
+text,label
+"EXPENSE REPORT
+Employee: Employee 10
+Department: HR
+Date: 13/4/2023
+Expense type: Meals
+Amount: $428.44
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 83
+Department: Sales
+Date: 18/2/2023
+Expense type: Accommodation
+Amount: $326.60
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 43
+Department: Sales
+Date: 7/2/2023
+Expense type: Meals
+Amount: $209.87
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 45
+Department: IT
+Date: 25/1/2023
+Expense type: Other
+Amount: $103.43
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 88
+Department: Sales
+Date: 1/12/2023
+Expense type: Travel
+Amount: $99.45
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 22
+Department: Marketing
+Date: 10/1/2023
+Expense type: Office Supplies
+Amount: $376.90
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 31
+Département: IT
+Date: 8/8/2023
+Type de dépense: Other
+Montant: 223.50€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 73
+Department: HR
+Date: 17/7/2023
+Expense type: Travel
+Amount: $327.33
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 86
+Département: HR
+Date: 9/12/2023
+Type de dépense: Accommodation
+Montant: 348.15€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 12
+Department: HR
+Date: 14/4/2023
+Expense type: Accommodation
+Amount: $239.76
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 51
+Department: Marketing
+Date: 26/12/2023
+Expense type: Office Supplies
+Amount: $427.47
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 6
+Department: Marketing
+Date: 21/8/2023
+Expense type: Meals
+Amount: $316.99
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 95
+Département: Marketing
+Date: 14/4/2023
+Type de dépense: Office Supplies
+Montant: 400.34€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 58
+Department: IT
+Date: 24/7/2023
+Expense type: Other
+Amount: $246.79
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 61
+Département: Marketing
+Date: 17/5/2023
+Type de dépense: Meals
+Montant: 177.34€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 99
+Department: HR
+Date: 5/8/2023
+Expense type: Other
+Amount: $425.87
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 100
+Department: IT
+Date: 14/9/2023
+Expense type: Meals
+Amount: $120.20
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 24
+Département: IT
+Date: 7/1/2023
+Type de dépense: Travel
+Montant: 267.90€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 51
+Département: IT
+Date: 20/5/2023
+Type de dépense: Accommodation
+Montant: 131.82€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 30
+Department: Finance
+Date: 4/5/2023
+Expense type: Other
+Amount: $486.42
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 33
+Department: Marketing
+Date: 22/12/2023
+Expense type: Other
+Amount: $378.68
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 41
+Department: Finance
+Date: 20/3/2023
+Expense type: Office Supplies
+Amount: $313.52
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 85
+Département: HR
+Date: 5/3/2023
+Type de dépense: Other
+Montant: 195.60€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 90
+Department: Marketing
+Date: 23/1/2023
+Expense type: Accommodation
+Amount: $126.11
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 31
+Department: IT
+Date: 2/7/2023
+Expense type: Other
+Amount: $223.41
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 3
+Department: IT
+Date: 4/10/2023
+Expense type: Accommodation
+Amount: $175.62
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 57
+Department: HR
+Date: 11/4/2023
+Expense type: Accommodation
+Amount: $231.26
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 56
+Département: Marketing
+Date: 10/6/2023
+Type de dépense: Other
+Montant: 211.83€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 3
+Department: IT
+Date: 2/11/2023
+Expense type: Other
+Amount: $321.68
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 60
+Département: Finance
+Date: 10/12/2023
+Type de dépense: Office Supplies
+Montant: 205.43€
+Justificatif: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 53
+Département: Finance
+Date: 20/11/2023
+Type de dépense: Travel
+Montant: 141.86€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 83
+Department: Marketing
+Date: 8/5/2023
+Expense type: Travel
+Amount: $171.32
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 12
+Département: Finance
+Date: 22/4/2023
+Type de dépense: Travel
+Montant: 303.22€
+Justificatif: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 59
+Département: Finance
+Date: 7/4/2023
+Type de dépense: Other
+Montant: 85.11€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 82
+Department: Marketing
+Date: 19/8/2023
+Expense type: Travel
+Amount: $169.67
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 3
+Département: IT
+Date: 18/6/2023
+Type de dépense: Other
+Montant: 445.50€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 68
+Department: Marketing
+Date: 22/1/2023
+Expense type: Meals
+Amount: $316.01
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 7
+Department: HR
+Date: 10/6/2023
+Expense type: Other
+Amount: $495.91
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 1
+Department: HR
+Date: 7/12/2023
+Expense type: Other
+Amount: $277.16
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 14
+Department: IT
+Date: 18/9/2023
+Expense type: Accommodation
+Amount: $362.98
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 55
+Department: Finance
+Date: 14/4/2023
+Expense type: Accommodation
+Amount: $482.86
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 37
+Département: Finance
+Date: 8/9/2023
+Type de dépense: Meals
+Montant: 186.65€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 75
+Department: IT
+Date: 9/8/2023
+Expense type: Accommodation
+Amount: $259.23
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 75
+Department: Sales
+Date: 9/5/2023
+Expense type: Meals
+Amount: $469.19
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 5
+Département: Marketing
+Date: 18/11/2023
+Type de dépense: Office Supplies
+Montant: 356.68€
+Justificatif: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 86
+Département: IT
+Date: 9/8/2023
+Type de dépense: Meals
+Montant: 322.52€
+Justificatif: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 55
+Département: HR
+Date: 18/4/2023
+Type de dépense: Other
+Montant: 400.61€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 9
+Department: Finance
+Date: 26/7/2023
+Expense type: Meals
+Amount: $80.84
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 86
+Department: IT
+Date: 18/1/2023
+Expense type: Travel
+Amount: $277.48
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 12
+Department: HR
+Date: 26/11/2023
+Expense type: Travel
+Amount: $431.63
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 47
+Département: Sales
+Date: 7/3/2023
+Type de dépense: Other
+Montant: 79.24€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 87
+Department: IT
+Date: 4/4/2023
+Expense type: Meals
+Amount: $465.71
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 52
+Department: Sales
+Date: 19/12/2023
+Expense type: Travel
+Amount: $397.71
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 44
+Department: Marketing
+Date: 11/5/2023
+Expense type: Travel
+Amount: $418.77
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 42
+Département: IT
+Date: 13/7/2023
+Type de dépense: Meals
+Montant: 345.32€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 8
+Department: Finance
+Date: 6/10/2023
+Expense type: Office Supplies
+Amount: $355.88
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 72
+Department: Marketing
+Date: 8/11/2023
+Expense type: Accommodation
+Amount: $174.60
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 55
+Department: Finance
+Date: 14/10/2023
+Expense type: Other
+Amount: $241.20
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 22
+Department: Finance
+Date: 6/6/2023
+Expense type: Office Supplies
+Amount: $111.44
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 98
+Département: Sales
+Date: 16/5/2023
+Type de dépense: Travel
+Montant: 367.66€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 90
+Département: Marketing
+Date: 21/4/2023
+Type de dépense: Other
+Montant: 232.18€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 72
+Department: Sales
+Date: 8/8/2023
+Expense type: Accommodation
+Amount: $83.93
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 22
+Département: Finance
+Date: 11/3/2023
+Type de dépense: Accommodation
+Montant: 232.25€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 24
+Département: Finance
+Date: 25/3/2023
+Type de dépense: Office Supplies
+Montant: 443.43€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 100
+Département: IT
+Date: 1/5/2023
+Type de dépense: Accommodation
+Montant: 65.81€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 96
+Département: Marketing
+Date: 15/4/2023
+Type de dépense: Accommodation
+Montant: 470.04€
+Justificatif: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 88
+Département: Sales
+Date: 13/4/2023
+Type de dépense: Accommodation
+Montant: 54.33€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 56
+Department: IT
+Date: 3/9/2023
+Expense type: Travel
+Amount: $273.46
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 28
+Department: Finance
+Date: 20/12/2023
+Expense type: Office Supplies
+Amount: $413.53
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 60
+Department: Marketing
+Date: 14/7/2023
+Expense type: Meals
+Amount: $151.90
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 58
+Department: HR
+Date: 22/1/2023
+Expense type: Travel
+Amount: $159.02
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 23
+Department: Sales
+Date: 5/10/2023
+Expense type: Accommodation
+Amount: $449.91
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 30
+Département: Sales
+Date: 21/1/2023
+Type de dépense: Office Supplies
+Montant: 346.21€
+Justificatif: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 57
+Département: Finance
+Date: 9/2/2023
+Type de dépense: Accommodation
+Montant: 67.14€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 8
+Department: Sales
+Date: 4/1/2023
+Expense type: Meals
+Amount: $355.47
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 4
+Département: Marketing
+Date: 10/7/2023
+Type de dépense: Office Supplies
+Montant: 187.56€
+Justificatif: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 56
+Département: Finance
+Date: 13/12/2023
+Type de dépense: Meals
+Montant: 94.80€
+Justificatif: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 46
+Department: HR
+Date: 18/11/2023
+Expense type: Other
+Amount: $88.28
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 68
+Department: HR
+Date: 22/12/2023
+Expense type: Accommodation
+Amount: $262.88
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 1
+Department: Finance
+Date: 13/12/2023
+Expense type: Travel
+Amount: $136.14
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 50
+Department: Sales
+Date: 13/6/2023
+Expense type: Other
+Amount: $222.35
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 56
+Department: HR
+Date: 7/3/2023
+Expense type: Other
+Amount: $468.65
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 56
+Département: Finance
+Date: 13/4/2023
+Type de dépense: Office Supplies
+Montant: 385.66€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 62
+Department: Finance
+Date: 13/3/2023
+Expense type: Accommodation
+Amount: $472.99
+Receipts: Receipt scan",expense_report
+"NOTE DE FRAIS
+Employé: Employee 45
+Département: HR
+Date: 2/5/2023
+Type de dépense: Office Supplies
+Montant: 153.94€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 95
+Department: Finance
+Date: 1/11/2023
+Expense type: Meals
+Amount: $436.14
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 38
+Department: HR
+Date: 20/11/2023
+Expense type: Meals
+Amount: $258.64
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 48
+Département: Finance
+Date: 9/6/2023
+Type de dépense: Office Supplies
+Montant: 304.83€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 3
+Department: Sales
+Date: 6/7/2023
+Expense type: Office Supplies
+Amount: $79.67
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 17
+Department: Finance
+Date: 10/10/2023
+Expense type: Accommodation
+Amount: $305.49
+Receipts: Receipt scan",expense_report
+"EXPENSE REPORT
+Employee: Employee 21
+Department: IT
+Date: 8/3/2023
+Expense type: Travel
+Amount: $295.33
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 16
+Department: HR
+Date: 19/12/2023
+Expense type: Office Supplies
+Amount: $414.14
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 59
+Département: IT
+Date: 23/12/2023
+Type de dépense: Meals
+Montant: 445.44€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 7
+Department: Marketing
+Date: 6/2/2023
+Expense type: Accommodation
+Amount: $164.54
+Receipts: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 2
+Department: HR
+Date: 21/12/2023
+Expense type: Other
+Amount: $404.99
+Receipts: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 41
+Department: HR
+Date: 14/1/2023
+Expense type: Travel
+Amount: $489.79
+Receipts: Multiple receipts",expense_report
+"NOTE DE FRAIS
+Employé: Employee 44
+Département: Marketing
+Date: 7/12/2023
+Type de dépense: Office Supplies
+Montant: 261.00€
+Justificatif: Ticket + Invoice",expense_report
+"EXPENSE REPORT
+Employee: Employee 36
+Department: Finance
+Date: 8/3/2023
+Expense type: Other
+Amount: $415.40
+Receipts: Ticket + Invoice",expense_report
+"NOTE DE FRAIS
+Employé: Employee 11
+Département: IT
+Date: 16/12/2023
+Type de dépense: Travel
+Montant: 490.35€
+Justificatif: Multiple receipts",expense_report
+"EXPENSE REPORT
+Employee: Employee 88
+Department: HR
+Date: 25/10/2023
+Expense type: Office Supplies
+Amount: $69.53
+Receipts: Ticket + Invoice",expense_report

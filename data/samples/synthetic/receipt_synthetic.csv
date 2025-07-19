@@ -1,0 +1,6 @@
+text,label
+"RECEIPT\nReceipt Number: RCPT-20001\nDate: 2025-05-15\nCustomer: Alpha Corp\nAmount Paid: $1,200.00\nPayment Method: Credit Card\nThank you for your payment!",receipt
+"RECEIPT\nReceipt Number: RCPT-20002\nDate: 2025-05-10\nCustomer: Beta LLC\nAmount Paid: $3,000.00\nPayment Method: Bank Transfer\nFor: Consulting Services\nAuthorized Signature: ________",receipt
+"RECEIPT\nReceipt Number: RCPT-20003\nDate: 2025-04-30\nCustomer: Gamma Industries\nAmount Paid: $900.00\nPayment Method: Cash\nFor: Equipment Purchase\nThank you!",receipt
+"REÇU DE PAIEMENT\nN° Reçu: RCPT-20004\nDate: 15/05/2025\nClient: Société Delta\nMontant: 1 440,00€\nMode de paiement: Carte bancaire\nPour: Services de maintenance\nSignature: ________",receipt
+"إيصال\nرقم الإيصال: RCPT-20005\nتاريخ: 2025-05-12\nالعميل: شركة المستقبل\nالمبلغ المدفوع: 3450.00\nطريقة الدفع: تحويل بنكي\nعن: خدمات استشارية\nشكرًا لدفعكم!",receipt

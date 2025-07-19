@@ -1,0 +1,6 @@
+text,label
+"INVOICE\nInvoice Number: INV-10006\nDate: 2025-05-16\nCustomer: Epsilon Ltd\nSubtotal: $3,200.00\nTax: $640.00\nTotal: $3,840.00\nDue Date: 2025-06-16\nPayment Terms: Net 30\nThank you for your business!",invoice
+"INVOICE\nInvoice Number: INV-10007\nDate: 2025-05-17\nCustomer: Zeta Group\nSubtotal: $1,800.00\nTax: $360.00\nTotal: $2,160.00\nDue Date: 2025-06-17\nPayment Terms: Net 30\nPlease pay by bank transfer.",invoice
+"INVOICE\nInvoice Number: INV-10008\nDate: 2025-05-18\nCustomer: Theta Solutions\nSubtotal: $2,250.00\nTax: $450.00\nTotal: $2,700.00\nDue Date: 2025-06-18\nPayment Terms: Net 30\nContact: billing@theta.com",invoice
+"فاتورة\nرقم الفاتورة: INV-10009\nتاريخ: 2025-05-17\nالعميل: شركة التقنية\nالمبلغ: 2100.00\nضريبة القيمة المضافة: 315.00\nالإجمالي: 2415.00\nتاريخ الاستحقاق: 2025-06-17\nيرجى الدفع خلال 30 يومًا.",invoice
+"FACTURE\nN° Facture: INV-10010\nDate: 16/05/2025\nClient: Entreprise Oméga\nMontant HT: 2 300,00€\nTVA: 460,00€\nTotal TTC: 2 760,00€\nÉchéance: 16/06/2025\nMerci pour votre confiance.",invoice

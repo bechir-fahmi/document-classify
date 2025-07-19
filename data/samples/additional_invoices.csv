@@ -1,0 +1,83 @@
+text,label
+"FACTURE
+N° Facture: INV-12345
+Date: 15/06/2023
+Client: ABC Company
+Montant HT: 1500.00
+TVA: 300.00
+Total TTC: 1800.00",invoice
+"INVOICE
+Invoice Number: INV-678910
+Date: July 10, 2023
+Customer: XYZ Corporation
+Subtotal: $2,000.00
+Tax: $200.00
+Total: $2,200.00",invoice
+"فاتورة
+رقم الفاتورة: INV-5432
+تاريخ: 12/05/2023
+العميل: شركة المستقبل
+المبلغ: 3000.00
+ضريبة القيمة المضافة: 150.00
+الإجمالي: 3150.00",invoice
+"FACTURE À ENVOYER À
+N° Facture: 7890
+Date d'émission: 03/07/2023
+Échéance: 30 jours
+Client: Dupont SA
+Montant: 750.00€
+TVA: 150.00€
+Total: 900.00€",invoice
+"FACTURE
+ÉCHÉANCE: 15 jours
+N° Facture: FC-2023-456
+Date: 22/04/2023
+Client: Martin SARL
+Prix HT: 650.00€
+TVA (20%): 130.00€
+Total TTC: 780.00€",invoice
+"INVOICE
+Due Date: 30 days
+Invoice #: 202304-555
+Date: April 15, 2023
+Bill To: Johnson Inc.
+Amount: $1,250.00
+Tax: $112.50
+Total Due: $1,362.50",invoice
+"فاتورة ضريبية
+رقم: 20230789
+تاريخ الإصدار: 10/03/2023
+تاريخ الاستحقاق: 10/04/2023
+العميل: مؤسسة النور
+إجمالي المبلغ: 4500.00
+ضريبة (15%): 675.00
+المجموع: 5175.00",invoice
+"Facture d'achat
+Numéro: FA-2023-789
+Date: 05/05/2023
+Fournisseur: Tech Solutions
+Articles: Matériel informatique
+Montant net: 2340.00€
+TVA: 468.00€
+À payer: 2808.00€",invoice
+"FACTURE PROFORMA
+Référence: PF-2023-123
+Date: 12/06/2023
+Client: Entreprise Moderne
+Détails: Consultation
+Prix unitaire: 800.00€
+Quantité: 4
+Total: 3200.00€",invoice
+"Invoice Receipt
+Receipt #: REC-789456
+Transaction Date: May 18, 2023
+Customer Name: Smith LLC
+Items: Professional Services
+Amount: $3,500.00
+Paid via: Bank Transfer",invoice 
+PLACEHOLDER for credit_note,credit_note
+PLACEHOLDER for debit_note,debit_note
+PLACEHOLDER for tax_declaration,tax_declaration
+PLACEHOLDER for fixed_asset_document,fixed_asset_document
+PLACEHOLDER for inventory_document,inventory_document
+PLACEHOLDER for journal_entry,journal_entry

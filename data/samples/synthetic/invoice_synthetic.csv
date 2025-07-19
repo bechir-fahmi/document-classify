@@ -1,0 +1,6 @@
+text,label
+"INVOICE\nInvoice Number: INV-10001\nDate: 2025-05-15\nCustomer: Alpha Corp\nSubtotal: $1,000.00\nTax: $200.00\nTotal: $1,200.00\nDue Date: 2025-06-15\nPayment Terms: Net 30\nThank you for your business!",invoice
+"INVOICE\nInvoice Number: INV-10002\nDate: 2025-05-10\nCustomer: Beta LLC\nSubtotal: $2,500.00\nTax: $500.00\nTotal: $3,000.00\nDue Date: 2025-06-10\nPayment Terms: Net 30\nPlease pay by bank transfer.",invoice
+"INVOICE\nInvoice Number: INV-10003\nDate: 2025-04-30\nCustomer: Gamma Industries\nSubtotal: $750.00\nTax: $150.00\nTotal: $900.00\nDue Date: 2025-05-30\nPayment Terms: Net 30\nContact: billing@gamma.com",invoice
+"فاتورة\nرقم الفاتورة: INV-10004\nتاريخ: 2025-05-12\nالعميل: شركة المستقبل\nالمبلغ: 3000.00\nضريبة القيمة المضافة: 450.00\nالإجمالي: 3450.00\nتاريخ الاستحقاق: 2025-06-12\nيرجى الدفع خلال 30 يومًا.",invoice
+"FACTURE\nN° Facture: INV-10005\nDate: 15/05/2025\nClient: Société Delta\nMontant HT: 1 200,00€\nTVA: 240,00€\nTotal TTC: 1 440,00€\nÉchéance: 15/06/2025\nMerci pour votre confiance.",invoice

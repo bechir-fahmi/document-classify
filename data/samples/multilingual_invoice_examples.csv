@@ -1,0 +1,80 @@
+text,label
+"0002500022200000322990991M
+1.39817525
+0320251.39817525
+Ooredoo Tunisie S.A
+MF : 789012H|M|A|000 - RC : B 117632002
+Immeuble Zenith, les jardins du Lac - 1053 Les Berges du Lac Tunis. Tunisie
+M. BACHIR FAHMI
+SIDI SAAD
+2090 MORNEG
+Tunisie
+Facture du mois (DT)
+03/2025
+(ﻓﺎﺗﻮرة اﻟﺸﻬﺮ )د.ﺕ
+Facture N°
+2220000032299099ﻓﺎﺗﻮﺭة ﺭﻗﻢ
+Montant HT
+23,365اﻟﻤﺒﻠﻎ ﺑﺪون أداء
+TVA
+1,635أداء ﻋﻠﻰ اﻟﻘﻴﻤﺔ اﻟﻤﻀﺎﻓﺔ
+Total TVA
+1,635ﻣﺠﻤوﻉ اﻷداءاﺕ ﻋﻠﻰ اﻟﻘﻴﻤﺔ اﻟﻤﻀﺎﻓﺔ
+Montant total hors timbre fiscal
+(1)25,000
+(1)اﻟﻤﺒﻠﻎ اﻹﺟﻤﺎﻟﻲ",invoice
+"Facture
+Numéro: 876543
+Date: 15/07/2023
+Client: ABC Consulting
+Description: Services professionnels
+Montant HT: 1200.00€
+TVA (20%): 240.00€ 
+Total TTC: 1440.00€
+Échéance: 30 jours",invoice
+"INVOICE / فاتورة
+Invoice No.: INV-98765
+Date: 28/06/2023
+Customer: Global Solutions LLC
+العميل: شركة الحلول العالمية
+Description / الوصف: IT Support Services / خدمات دعم تكنولوجيا المعلومات
+Amount / المبلغ: USD 3,500.00
+Tax / الضريبة: USD 350.00
+Total Amount / المبلغ الإجمالي: USD 3,850.00",invoice
+"شركة التقنية المتطورة
+فاتورة ضريبية
+رقم الفاتورة: 20230587
+تاريخ الإصدار: 12/07/2023
+العميل: مؤسسة النور للتجارة
+المنتجات: أجهزة حاسوب وملحقاتها
+المبلغ: 8500 ريال
+ضريبة القيمة المضافة: 1275 ريال
+المبلغ الإجمالي: 9775 ريال",invoice
+"Facture du mois de Juin 2023
+Numéro client: CL-76543
+Contrat: 87612309
+Abonnement téléphonique
+Montant de l'abonnement: 29,99€
+Consommation hors forfait: 12,50€
+Montant HT: 42,49€
+TVA (20%): 8,50€
+Montant TTC: 50,99€
+Date limite de paiement: 15/07/2023",invoice
+"فاتورة
+الشركة الوطنية للاتصالات
+رقم الفاتورة: 76543210
+تاريخ الفاتورة: 01/07/2023
+اسم المشترك: عبدالله محمد
+رقم الاشتراك: 98761234
+مدة الفاتورة: من 01/06/2023 إلى 30/06/2023
+قيمة الاشتراك الشهري: 100.00
+المكالمات الدولية: 35.50
+خدمات إضافية: 15.00
+ضريبة القيمة المضافة (15%): 22.58
+المبلغ الإجمالي: 173.08",invoice 
+PLACEHOLDER for credit_note,credit_note
+PLACEHOLDER for debit_note,debit_note
+PLACEHOLDER for tax_declaration,tax_declaration
+PLACEHOLDER for fixed_asset_document,fixed_asset_document
+PLACEHOLDER for inventory_document,inventory_document
+PLACEHOLDER for journal_entry,journal_entry

@@ -1,0 +1,155 @@
+text,label
+"PURCHASE RECEIPT
+Store: Strategic Solutions Store
+Date: 1/3/2021
+Product(s): 3 x Item C
+Amount Paid: $6783.60
+Payment Method: Check",receipt
+"BILLING INVOICE
+Invoice #: INV-3052
+Issue Date: 1/10/2020
+Payment Due: 1/25/2022
+Customer ID: Michael Williams
+Total Amount: $9399.29",invoice
+"SERVICES CONTRACT
+This Contract dated 10/4/2022 is between John Williams ('Provider') and Advanced Systems ('Client')
+Term of Service: 9 months
+Scope of Work: Provide design services",contract
+"CONSULTING AGREEMENT
+This Consulting Agreement effective 11/18/2022 is between Lisa Johnson and Strategic Solutions
+Services: Provide consulting services
+Compensation: $4944.54",contract
+"SALES RECEIPT
+Receipt #: TXN-2245
+Sale Date: 3/20/2020
+Description: 3 x Product A
+Subtotal: $792.32
+Tax: $77.91
+Total: $3569.73",receipt
+"RECEIPT
+Transaction #: TXN-9673
+Date: 3/5/2022
+Items: 2 x Service B
+Total: $8204.49
+Thank you for your purchase!",receipt
+"CONTRACT AGREEMENT
+Between Jane Williams and Innovative Systems
+Effective Date: 9/22/2020
+Term: 5 months
+This agreement is made on 9/22/2020 between Jane Williams and Innovative Systems...",contract
+"CONSULTING AGREEMENT
+This Consulting Agreement effective 10/25/2021 is between David Miller and Innovative Enterprises
+Services: Provide design services
+Compensation: $3880.66",contract
+"PURCHASE RECEIPT
+Store: Global Solutions Store
+Date: 4/7/2022
+Product(s): 3 x Product A
+Amount Paid: $3295.13
+Payment Method: Bank Transfer",receipt
+"Invoice
+Invoice Number: INV-8953
+Invoice Date: 8/2/2022
+Customer: David Miller
+Total: $4666.72",invoice
+"SALES RECEIPT
+Receipt #: TXN-6405
+Sale Date: 8/5/2020
+Description: 5 x Subscription D
+Subtotal: $940.13
+Tax: $90.68
+Total: $8652.21",receipt
+"SERVICES CONTRACT
+This Contract dated 9/26/2022 is between Michael Williams ('Provider') and Advanced Systems ('Client')
+Term of Service: 10 months
+Scope of Work: Provide consulting services",contract
+"PURCHASE RECEIPT
+Store: Trusted Associates Store
+Date: 5/13/2021
+Product(s): 4 x Subscription D
+Amount Paid: $187.39
+Payment Method: Bank Transfer",receipt
+"INVOICE #: INV-8987
+Date: 9/10/2020
+Due Date: 11/25/2023
+Bill To: Emily Garcia
+Amount Due: $6864.39",invoice
+"SALES RECEIPT
+Receipt #: TXN-6537
+Sale Date: 6/8/2023
+Description: 4 x Item C
+Subtotal: $915.14
+Tax: $25.31
+Total: $6368.11",receipt
+"BILLING INVOICE
+Invoice #: INV-8988
+Issue Date: 11/5/2023
+Payment Due: 11/3/2023
+Customer ID: Michael Davis
+Total Amount: $1532.53",invoice
+"PURCHASE RECEIPT
+Store: Premier Systems Store
+Date: 10/19/2020
+Product(s): 1 x Product A
+Amount Paid: $2033.60
+Payment Method: PayPal",receipt
+"SERVICES CONTRACT
+This Contract dated 11/3/2021 is between John Brown ('Provider') and Premier Associates ('Client')
+Term of Service: 1 months
+Scope of Work: Provide consulting services",contract
+"INVOICE #: INV-2696
+Date: 5/19/2022
+Due Date: 8/5/2021
+Bill To: Michael Williams
+Amount Due: $5862.16",invoice
+"RECEIPT
+Transaction #: TXN-7569
+Date: 5/10/2020
+Items: 4 x Subscription D
+Total: $6012.65
+Thank you for your purchase!",receipt
+"CONSULTING AGREEMENT
+This Consulting Agreement effective 6/26/2020 is between Sarah Garcia and Elite Industries
+Services: Provide marketing services
+Compensation: $932.18",contract
+"CONSULTING AGREEMENT
+This Consulting Agreement effective 11/15/2020 is between Lisa Garcia and Elite Enterprises
+Services: Provide design services
+Compensation: $7303.99",contract
+"Invoice
+Invoice Number: INV-3648
+Invoice Date: 11/21/2023
+Customer: Jane Miller
+Total: $2341.45",invoice
+"RECEIPT
+Transaction #: TXN-8516
+Date: 3/13/2022
+Items: 1 x Item C
+Total: $7165.23
+Thank you for your purchase!",receipt
+"CONTRACT AGREEMENT
+Between Emily Miller and Advanced Systems
+Effective Date: 9/8/2023
+Term: 7 months
+This agreement is made on 9/8/2023 between Emily Miller and Advanced Systems...",contract
+"PURCHASE RECEIPT
+Store: Premier Enterprises Store
+Date: 8/8/2022
+Product(s): 5 x Service B
+Amount Paid: $4417.35
+Payment Method: PayPal",receipt
+"CONSULTING AGREEMENT
+This Consulting Agreement effective 7/22/2023 is between Lisa Davis and Trusted Consultants
+Services: Provide marketing services
+Compensation: $447.31",contract
+"Invoice
+Invoice Number: INV-7978
+Invoice Date: 9/9/2021
+Customer: David Johnson
+Total: $8839.21",invoice
+CREDIT NOTE\nCredit Note Number: CN-2024-001\nDate: 2024-05-10\nCustomer: John Doe\nOriginal Invoice: INV-3052\nAmount Credited: $500.00\nReason: Returned goods,credit_note
+DEBIT NOTE\nDebit Note Number: DN-2024-002\nDate: 2024-05-12\nSupplier: Acme Corp\nRelated Invoice: INV-3052\nAmount Debited: $200.00\nReason: Undercharged items,debit_note
+"TAX DECLARATION\nDeclaration Number: TD-2024-003\nPeriod: Q1 2024\nCompany: Global Solutions Ltd.\nTotal Revenue: $100,000.00\nTax Due: $15,000.00\nSubmission Date: 2024-04-15",tax_declaration
+"FIXED ASSET REGISTER\nAsset ID: FA-1001\nDescription: Office Furniture\nAcquisition Date: 2023-01-10\nAcquisition Cost: $2,500.00\nDepreciation Method: Straight Line\nLocation: Main Office",fixed_asset_document
+"INVENTORY REPORT\nInventory Date: 2024-06-01\nWarehouse: Central Storage\nItem: Laptop Dell XPS 13\nQuantity: 25\nStock Value: $30,000.00\nChecked by: Sarah Lee",inventory_document
+JOURNAL ENTRY\nEntry Number: JE-2024-005\nDate: 2024-05-20\nAccount Debit: Office Supplies - $300.00\nAccount Credit: Cash - $300.00\nDescription: Purchase of office supplies\nPrepared by: Mark Evans,journal_entry

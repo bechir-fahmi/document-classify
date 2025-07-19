@@ -1,0 +1,801 @@
+text,label
+"BULLETIN DE PAIE
+Employeur: Company 34
+Employé: Employee 82
+Période: April 2023
+Salaire brut: 3636.37€
+Cotisations: 1091.45€
+Net à payer: 2544.92€
+Date de paiement: 30/3/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 46
+Employé: Employee 84
+Période: November 2023
+Salaire brut: 4089.48€
+Cotisations: 1446.25€
+Net à payer: 2643.23€
+Date de paiement: 27/8/2023",payslip
+"PAYSLIP
+Employer: Company 17
+Employee: Employee 4
+Period: October 2023
+Gross salary: $2795.63
+Deductions: $579.40
+Net pay: $2216.23
+Payment date: 28/10/2023",payslip
+"PAYSLIP
+Employer: Company 15
+Employee: Employee 93
+Period: December 2023
+Gross salary: $4276.93
+Deductions: $1391.99
+Net pay: $2884.94
+Payment date: 30/10/2023",payslip
+"PAYSLIP
+Employer: Company 34
+Employee: Employee 41
+Period: September 2023
+Gross salary: $4558.71
+Deductions: $983.05
+Net pay: $3575.66
+Payment date: 29/12/2023",payslip
+"PAYSLIP
+Employer: Company 48
+Employee: Employee 1
+Period: April 2023
+Gross salary: $4201.10
+Deductions: $1471.10
+Net pay: $2730.00
+Payment date: 27/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 5
+Employé: Employee 99
+Période: September 2023
+Salaire brut: 4502.83€
+Cotisations: 1271.00€
+Net à payer: 3231.83€
+Date de paiement: 28/1/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 38
+Employé: Employee 11
+Période: September 2023
+Salaire brut: 3558.14€
+Cotisations: 1124.95€
+Net à payer: 2433.19€
+Date de paiement: 30/7/2023",payslip
+"PAYSLIP
+Employer: Company 25
+Employee: Employee 58
+Period: May 2023
+Gross salary: $3451.28
+Deductions: $1352.32
+Net pay: $2098.96
+Payment date: 30/8/2023",payslip
+"PAYSLIP
+Employer: Company 11
+Employee: Employee 7
+Period: April 2023
+Gross salary: $2979.94
+Deductions: $780.37
+Net pay: $2199.57
+Payment date: 26/9/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 30
+Employé: Employee 78
+Période: January 2023
+Salaire brut: 3003.29€
+Cotisations: 1036.26€
+Net à payer: 1967.03€
+Date de paiement: 27/7/2023",payslip
+"PAYSLIP
+Employer: Company 46
+Employee: Employee 76
+Period: February 2023
+Gross salary: $2501.53
+Deductions: $951.73
+Net pay: $1549.80
+Payment date: 28/3/2023",payslip
+"PAYSLIP
+Employer: Company 23
+Employee: Employee 53
+Period: December 2023
+Gross salary: $3581.14
+Deductions: $822.86
+Net pay: $2758.28
+Payment date: 29/3/2023",payslip
+"PAYSLIP
+Employer: Company 25
+Employee: Employee 74
+Period: May 2023
+Gross salary: $2617.25
+Deductions: $640.49
+Net pay: $1976.76
+Payment date: 29/10/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 1
+Employé: Employee 83
+Période: August 2023
+Salaire brut: 2157.46€
+Cotisations: 780.46€
+Net à payer: 1377.00€
+Date de paiement: 29/12/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 31
+Employé: Employee 94
+Période: November 2023
+Salaire brut: 4902.74€
+Cotisations: 1900.13€
+Net à payer: 3002.61€
+Date de paiement: 28/8/2023",payslip
+"PAYSLIP
+Employer: Company 10
+Employee: Employee 56
+Period: August 2023
+Gross salary: $3126.99
+Deductions: $803.74
+Net pay: $2323.25
+Payment date: 29/11/2023",payslip
+"PAYSLIP
+Employer: Company 7
+Employee: Employee 34
+Period: March 2023
+Gross salary: $3818.23
+Deductions: $828.70
+Net pay: $2989.53
+Payment date: 27/6/2023",payslip
+"PAYSLIP
+Employer: Company 19
+Employee: Employee 63
+Period: December 2023
+Gross salary: $3484.22
+Deductions: $1039.06
+Net pay: $2445.16
+Payment date: 29/3/2023",payslip
+"PAYSLIP
+Employer: Company 36
+Employee: Employee 45
+Period: January 2023
+Gross salary: $4642.82
+Deductions: $1301.76
+Net pay: $3341.06
+Payment date: 27/9/2023",payslip
+"PAYSLIP
+Employer: Company 18
+Employee: Employee 71
+Period: August 2023
+Gross salary: $3804.90
+Deductions: $1183.58
+Net pay: $2621.32
+Payment date: 30/5/2023",payslip
+"PAYSLIP
+Employer: Company 14
+Employee: Employee 63
+Period: August 2023
+Gross salary: $3725.99
+Deductions: $1172.54
+Net pay: $2553.45
+Payment date: 25/4/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 10
+Employé: Employee 1
+Période: November 2023
+Salaire brut: 2263.66€
+Cotisations: 563.05€
+Net à payer: 1700.61€
+Date de paiement: 28/3/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 47
+Employé: Employee 2
+Période: June 2023
+Salaire brut: 4923.07€
+Cotisations: 1373.24€
+Net à payer: 3549.83€
+Date de paiement: 25/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 33
+Employé: Employee 75
+Période: May 2023
+Salaire brut: 2221.73€
+Cotisations: 563.62€
+Net à payer: 1658.11€
+Date de paiement: 30/9/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 29
+Employé: Employee 14
+Période: February 2023
+Salaire brut: 3584.55€
+Cotisations: 737.83€
+Net à payer: 2846.72€
+Date de paiement: 27/2/2023",payslip
+"PAYSLIP
+Employer: Company 6
+Employee: Employee 7
+Period: January 2023
+Gross salary: $3602.09
+Deductions: $1009.18
+Net pay: $2592.91
+Payment date: 25/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 19
+Employé: Employee 2
+Période: February 2023
+Salaire brut: 4441.35€
+Cotisations: 1047.75€
+Net à payer: 3393.60€
+Date de paiement: 29/4/2023",payslip
+"PAYSLIP
+Employer: Company 34
+Employee: Employee 37
+Period: January 2023
+Gross salary: $3175.84
+Deductions: $1253.44
+Net pay: $1922.40
+Payment date: 26/7/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 50
+Employé: Employee 99
+Période: March 2023
+Salaire brut: 2220.99€
+Cotisations: 679.32€
+Net à payer: 1541.67€
+Date de paiement: 26/5/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 13
+Employé: Employee 40
+Période: June 2023
+Salaire brut: 4774.34€
+Cotisations: 1772.48€
+Net à payer: 3001.86€
+Date de paiement: 28/3/2023",payslip
+"PAYSLIP
+Employer: Company 26
+Employee: Employee 41
+Period: March 2023
+Gross salary: $2079.02
+Deductions: $595.08
+Net pay: $1483.94
+Payment date: 28/11/2023",payslip
+"PAYSLIP
+Employer: Company 31
+Employee: Employee 51
+Period: August 2023
+Gross salary: $4107.04
+Deductions: $1051.73
+Net pay: $3055.31
+Payment date: 25/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 49
+Employé: Employee 43
+Période: January 2023
+Salaire brut: 2527.01€
+Cotisations: 660.90€
+Net à payer: 1866.11€
+Date de paiement: 26/6/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 20
+Employé: Employee 34
+Période: January 2023
+Salaire brut: 2532.90€
+Cotisations: 971.56€
+Net à payer: 1561.34€
+Date de paiement: 30/12/2023",payslip
+"PAYSLIP
+Employer: Company 22
+Employee: Employee 62
+Period: August 2023
+Gross salary: $3448.54
+Deductions: $1304.87
+Net pay: $2143.67
+Payment date: 29/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 37
+Employé: Employee 82
+Période: December 2023
+Salaire brut: 2481.10€
+Cotisations: 915.89€
+Net à payer: 1565.21€
+Date de paiement: 30/10/2023",payslip
+"PAYSLIP
+Employer: Company 26
+Employee: Employee 38
+Period: September 2023
+Gross salary: $2719.40
+Deductions: $949.80
+Net pay: $1769.60
+Payment date: 29/1/2023",payslip
+"PAYSLIP
+Employer: Company 50
+Employee: Employee 35
+Period: August 2023
+Gross salary: $2180.29
+Deductions: $705.84
+Net pay: $1474.45
+Payment date: 28/2/2023",payslip
+"PAYSLIP
+Employer: Company 22
+Employee: Employee 96
+Period: August 2023
+Gross salary: $3304.16
+Deductions: $735.18
+Net pay: $2568.98
+Payment date: 25/12/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 33
+Employé: Employee 2
+Période: September 2023
+Salaire brut: 2623.35€
+Cotisations: 911.87€
+Net à payer: 1711.48€
+Date de paiement: 26/5/2023",payslip
+"PAYSLIP
+Employer: Company 22
+Employee: Employee 92
+Period: December 2023
+Gross salary: $3959.88
+Deductions: $1414.10
+Net pay: $2545.78
+Payment date: 28/1/2023",payslip
+"PAYSLIP
+Employer: Company 26
+Employee: Employee 80
+Period: January 2023
+Gross salary: $2008.83
+Deductions: $739.89
+Net pay: $1268.94
+Payment date: 29/6/2023",payslip
+"PAYSLIP
+Employer: Company 38
+Employee: Employee 20
+Period: November 2023
+Gross salary: $2213.99
+Deductions: $857.74
+Net pay: $1356.25
+Payment date: 28/10/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 36
+Employé: Employee 94
+Période: August 2023
+Salaire brut: 2401.97€
+Cotisations: 852.67€
+Net à payer: 1549.30€
+Date de paiement: 29/4/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 31
+Employé: Employee 96
+Période: September 2023
+Salaire brut: 4959.09€
+Cotisations: 1655.11€
+Net à payer: 3303.98€
+Date de paiement: 27/9/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 2
+Employé: Employee 50
+Période: April 2023
+Salaire brut: 3095.20€
+Cotisations: 735.33€
+Net à payer: 2359.87€
+Date de paiement: 25/3/2023",payslip
+"PAYSLIP
+Employer: Company 29
+Employee: Employee 42
+Period: July 2023
+Gross salary: $3834.98
+Deductions: $787.19
+Net pay: $3047.79
+Payment date: 26/4/2023",payslip
+"PAYSLIP
+Employer: Company 6
+Employee: Employee 67
+Period: September 2023
+Gross salary: $3080.01
+Deductions: $1222.23
+Net pay: $1857.78
+Payment date: 25/4/2023",payslip
+"PAYSLIP
+Employer: Company 25
+Employee: Employee 97
+Period: August 2023
+Gross salary: $2635.47
+Deductions: $642.44
+Net pay: $1993.03
+Payment date: 27/11/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 47
+Employé: Employee 18
+Période: July 2023
+Salaire brut: 2573.61€
+Cotisations: 712.89€
+Net à payer: 1860.72€
+Date de paiement: 30/7/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 6
+Employé: Employee 13
+Période: May 2023
+Salaire brut: 3254.18€
+Cotisations: 864.74€
+Net à payer: 2389.44€
+Date de paiement: 27/7/2023",payslip
+"PAYSLIP
+Employer: Company 30
+Employee: Employee 72
+Period: September 2023
+Gross salary: $3557.42
+Deductions: $728.01
+Net pay: $2829.41
+Payment date: 29/6/2023",payslip
+"PAYSLIP
+Employer: Company 20
+Employee: Employee 30
+Period: May 2023
+Gross salary: $4211.43
+Deductions: $1063.53
+Net pay: $3147.90
+Payment date: 27/4/2023",payslip
+"PAYSLIP
+Employer: Company 18
+Employee: Employee 98
+Period: November 2023
+Gross salary: $3262.58
+Deductions: $698.19
+Net pay: $2564.39
+Payment date: 25/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 38
+Employé: Employee 70
+Période: August 2023
+Salaire brut: 3284.94€
+Cotisations: 760.42€
+Net à payer: 2524.52€
+Date de paiement: 26/3/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 16
+Employé: Employee 55
+Période: July 2023
+Salaire brut: 4875.23€
+Cotisations: 1472.29€
+Net à payer: 3402.94€
+Date de paiement: 26/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 30
+Employé: Employee 61
+Période: October 2023
+Salaire brut: 2508.98€
+Cotisations: 843.80€
+Net à payer: 1665.18€
+Date de paiement: 29/9/2023",payslip
+"PAYSLIP
+Employer: Company 38
+Employee: Employee 92
+Period: October 2023
+Gross salary: $2907.12
+Deductions: $1005.17
+Net pay: $1901.95
+Payment date: 26/12/2023",payslip
+"PAYSLIP
+Employer: Company 14
+Employee: Employee 77
+Period: November 2023
+Gross salary: $2109.03
+Deductions: $575.56
+Net pay: $1533.47
+Payment date: 26/10/2023",payslip
+"PAYSLIP
+Employer: Company 38
+Employee: Employee 38
+Period: November 2023
+Gross salary: $4632.68
+Deductions: $1250.81
+Net pay: $3381.87
+Payment date: 29/8/2023",payslip
+"PAYSLIP
+Employer: Company 13
+Employee: Employee 44
+Period: April 2023
+Gross salary: $3505.70
+Deductions: $855.65
+Net pay: $2650.05
+Payment date: 28/6/2023",payslip
+"PAYSLIP
+Employer: Company 29
+Employee: Employee 74
+Period: October 2023
+Gross salary: $3844.41
+Deductions: $1427.71
+Net pay: $2416.70
+Payment date: 27/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 34
+Employé: Employee 42
+Période: April 2023
+Salaire brut: 3242.76€
+Cotisations: 967.27€
+Net à payer: 2275.49€
+Date de paiement: 26/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 35
+Employé: Employee 70
+Période: April 2023
+Salaire brut: 2836.32€
+Cotisations: 647.19€
+Net à payer: 2189.13€
+Date de paiement: 27/12/2023",payslip
+"PAYSLIP
+Employer: Company 24
+Employee: Employee 48
+Period: March 2023
+Gross salary: $2543.06
+Deductions: $766.42
+Net pay: $1776.64
+Payment date: 25/11/2023",payslip
+"PAYSLIP
+Employer: Company 6
+Employee: Employee 91
+Period: March 2023
+Gross salary: $2621.16
+Deductions: $970.76
+Net pay: $1650.40
+Payment date: 27/1/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 33
+Employé: Employee 95
+Période: May 2023
+Salaire brut: 2223.46€
+Cotisations: 584.81€
+Net à payer: 1638.65€
+Date de paiement: 27/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 25
+Employé: Employee 50
+Période: May 2023
+Salaire brut: 2254.93€
+Cotisations: 610.59€
+Net à payer: 1644.34€
+Date de paiement: 25/7/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 13
+Employé: Employee 21
+Période: June 2023
+Salaire brut: 4471.54€
+Cotisations: 1368.53€
+Net à payer: 3103.01€
+Date de paiement: 25/7/2023",payslip
+"PAYSLIP
+Employer: Company 11
+Employee: Employee 31
+Period: March 2023
+Gross salary: $2292.82
+Deductions: $769.20
+Net pay: $1523.62
+Payment date: 26/1/2023",payslip
+"PAYSLIP
+Employer: Company 40
+Employee: Employee 32
+Period: July 2023
+Gross salary: $3244.60
+Deductions: $1226.18
+Net pay: $2018.42
+Payment date: 30/9/2023",payslip
+"PAYSLIP
+Employer: Company 6
+Employee: Employee 3
+Period: July 2023
+Gross salary: $3562.72
+Deductions: $1175.30
+Net pay: $2387.42
+Payment date: 28/9/2023",payslip
+"PAYSLIP
+Employer: Company 4
+Employee: Employee 24
+Period: March 2023
+Gross salary: $2141.41
+Deductions: $712.60
+Net pay: $1428.81
+Payment date: 29/5/2023",payslip
+"PAYSLIP
+Employer: Company 5
+Employee: Employee 37
+Period: April 2023
+Gross salary: $4876.51
+Deductions: $1132.05
+Net pay: $3744.46
+Payment date: 28/11/2023",payslip
+"PAYSLIP
+Employer: Company 31
+Employee: Employee 77
+Period: December 2023
+Gross salary: $4906.80
+Deductions: $1605.12
+Net pay: $3301.68
+Payment date: 26/8/2023",payslip
+"PAYSLIP
+Employer: Company 50
+Employee: Employee 49
+Period: December 2023
+Gross salary: $3379.71
+Deductions: $902.25
+Net pay: $2477.46
+Payment date: 30/1/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 37
+Employé: Employee 22
+Période: August 2023
+Salaire brut: 2194.93€
+Cotisations: 499.42€
+Net à payer: 1695.51€
+Date de paiement: 28/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 12
+Employé: Employee 16
+Période: December 2023
+Salaire brut: 2404.61€
+Cotisations: 647.04€
+Net à payer: 1757.57€
+Date de paiement: 26/11/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 3
+Employé: Employee 63
+Période: May 2023
+Salaire brut: 2538.80€
+Cotisations: 977.98€
+Net à payer: 1560.82€
+Date de paiement: 29/4/2023",payslip
+"PAYSLIP
+Employer: Company 23
+Employee: Employee 1
+Period: July 2023
+Gross salary: $3770.03
+Deductions: $886.25
+Net pay: $2883.78
+Payment date: 30/11/2023",payslip
+"PAYSLIP
+Employer: Company 2
+Employee: Employee 19
+Period: December 2023
+Gross salary: $4350.53
+Deductions: $1663.39
+Net pay: $2687.14
+Payment date: 27/9/2023",payslip
+"PAYSLIP
+Employer: Company 31
+Employee: Employee 3
+Period: April 2023
+Gross salary: $3948.16
+Deductions: $828.33
+Net pay: $3119.83
+Payment date: 26/4/2023",payslip
+"PAYSLIP
+Employer: Company 8
+Employee: Employee 92
+Period: November 2023
+Gross salary: $2702.70
+Deductions: $971.96
+Net pay: $1730.74
+Payment date: 26/3/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 44
+Employé: Employee 32
+Période: January 2023
+Salaire brut: 2564.70€
+Cotisations: 804.93€
+Net à payer: 1759.77€
+Date de paiement: 28/12/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 22
+Employé: Employee 73
+Période: August 2023
+Salaire brut: 4610.97€
+Cotisations: 1783.39€
+Net à payer: 2827.58€
+Date de paiement: 29/4/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 11
+Employé: Employee 94
+Période: August 2023
+Salaire brut: 3707.20€
+Cotisations: 1077.46€
+Net à payer: 2629.74€
+Date de paiement: 27/11/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 34
+Employé: Employee 47
+Période: January 2023
+Salaire brut: 4604.12€
+Cotisations: 1118.85€
+Net à payer: 3485.27€
+Date de paiement: 27/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 39
+Employé: Employee 25
+Période: April 2023
+Salaire brut: 2015.54€
+Cotisations: 802.14€
+Net à payer: 1213.40€
+Date de paiement: 25/5/2023",payslip
+"PAYSLIP
+Employer: Company 4
+Employee: Employee 6
+Period: September 2023
+Gross salary: $2151.06
+Deductions: $757.52
+Net pay: $1393.54
+Payment date: 29/8/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 14
+Employé: Employee 2
+Période: August 2023
+Salaire brut: 3588.77€
+Cotisations: 1074.78€
+Net à payer: 2513.99€
+Date de paiement: 30/10/2023",payslip
+"PAYSLIP
+Employer: Company 4
+Employee: Employee 20
+Period: October 2023
+Gross salary: $2168.53
+Deductions: $582.09
+Net pay: $1586.44
+Payment date: 30/5/2023",payslip
+"PAYSLIP
+Employer: Company 3
+Employee: Employee 96
+Period: September 2023
+Gross salary: $2022.87
+Deductions: $653.21
+Net pay: $1369.66
+Payment date: 30/6/2023",payslip
+"PAYSLIP
+Employer: Company 23
+Employee: Employee 56
+Period: November 2023
+Gross salary: $3913.13
+Deductions: $1326.07
+Net pay: $2587.06
+Payment date: 26/6/2023",payslip
+"PAYSLIP
+Employer: Company 25
+Employee: Employee 25
+Period: July 2023
+Gross salary: $3658.03
+Deductions: $1166.47
+Net pay: $2491.56
+Payment date: 25/6/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 50
+Employé: Employee 59
+Période: November 2023
+Salaire brut: 2920.96€
+Cotisations: 939.18€
+Net à payer: 1981.78€
+Date de paiement: 27/2/2023",payslip
+"PAYSLIP
+Employer: Company 6
+Employee: Employee 15
+Period: January 2023
+Gross salary: $4552.64
+Deductions: $957.46
+Net pay: $3595.18
+Payment date: 27/6/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 29
+Employé: Employee 49
+Période: February 2023
+Salaire brut: 3523.45€
+Cotisations: 1109.26€
+Net à payer: 2414.19€
+Date de paiement: 27/7/2023",payslip
+"PAYSLIP
+Employer: Company 17
+Employee: Employee 84
+Period: January 2023
+Gross salary: $3636.05
+Deductions: $1091.63
+Net pay: $2544.42
+Payment date: 28/2/2023",payslip
+"BULLETIN DE PAIE
+Employeur: Company 49
+Employé: Employee 76
+Période: July 2023
+Salaire brut: 2176.74€
+Cotisations: 439.14€
+Net à payer: 1737.60€
+Date de paiement: 28/10/2023",payslip
