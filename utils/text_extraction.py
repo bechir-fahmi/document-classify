@@ -60,8 +60,17 @@ def extract_text_from_file(file_path: str) -> str:
             return extract_text_from_pdf(file_path)
             
         elif ext == '.txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return f.read()
+            # Try different encodings
+            encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252']
+            for encoding in encodings:
+                try:
+                    with open(file_path, 'r', encoding=encoding) as f:
+                        return f.read()
+                except UnicodeDecodeError:
+                    continue
+            # If all encodings fail, read as binary and decode with errors='ignore'
+            with open(file_path, 'rb') as f:
+                return f.read().decode('utf-8', errors='ignore')
                 
         else:
             raise ValueError(f"Unsupported file type: {ext}")
