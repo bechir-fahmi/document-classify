@@ -2,37 +2,17 @@
 
 A production-ready document classification system using machine learning to automatically classify business documents with **95.5% accuracy**.
 
-## 📋 Features
+---
 
-- **High Accuracy**: 95.5% overall accuracy with Excellence Model
-- **9 Document Types**: Invoice, Receipt, Contract, Purchase Order, Quote, Bank Statement, Expense Report, Payslip, Delivery Note
-- **Real-time API**: Fast classification with confidence scores
-- **Cloud Storage**: Automatic document upload to Cloudinary
-- **AI Information Extraction**: Powered by Groq AI
-- **Production Ready**: Docker support, comprehensive error handling
+## ⚡️ Step-by-Step Quick Start
 
-## 🎯 Performance
-
-- **Excellent (100% accuracy)**: 8 document types
-- **Good (50-99% accuracy)**: 1 document type  
-- **Average Confidence**: 66.2%
-- **Processing Time**: ~2-3 seconds per document
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8+
-- Virtual environment recommended
-
-### Installation
-
-1. **Clone the repository**
+### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
 cd document-classification-api
 ```
 
-2. **Create virtual environment**
+### 2. Create and Activate a Virtual Environment
 ```bash
 python -m venv ai_model_env
 ai_model_env\Scripts\activate  # Windows
@@ -40,13 +20,13 @@ ai_model_env\Scripts\activate  # Windows
 source ai_model_env/bin/activate  # Linux/Mac
 ```
 
-3. **Install dependencies**
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Set up environment variables**
-Create a `.env` file:
+### 4. Configure Environment Variables
+Create a `.env` file in the project root with the following content:
 ```env
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
@@ -54,45 +34,27 @@ CLOUDINARY_API_SECRET=your_api_secret
 GROQ_API_KEY=your_groq_api_key
 ```
 
-5. **Start the API**
+- These are required for document upload and AI extraction.
+- You can also set these variables directly in your shell or deployment environment.
+
+### 5. Run the FastAPI Server
 ```bash
 python app.py api
 ```
+- The API will be available at: [http://localhost:8000](http://localhost:8000)
 
-The API will be available at `http://localhost:8000`
+---
 
-## 📡 API Endpoints
+## 🏃‍♂️ FastAPI Example Usage
 
-### 1. Classify Document
+### Classify a Document (using `curl`)
 ```bash
-POST /classify
-
 curl -X POST "http://localhost:8000/classify" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@document.pdf"
 ```
 
-### 2. Classify Commercial Document
-```bash
-POST /classify-commercial
-
-curl -X POST "http://localhost:8000/classify-commercial" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@document.pdf"
-```
-
-### 3. Health Check
-```bash
-GET /health
-```
-
-### 4. List Models
-```bash
-GET /models
-```
-
-## 📊 Response Format
-
+#### Example Response
 ```json
 {
   "document_id": "unique-document-id",
@@ -116,41 +78,7 @@ GET /models
 }
 ```
 
-## 🐳 Docker Deployment
-
-### Build and Run
-```bash
-docker-compose up --build
-```
-
-### Production Deployment
-```bash
-docker-compose up -d
-```
-
-## 📁 Project Structure
-
-```
-document-classification-api/
-├── app.py                 # Main application entry point
-├── config.py             # Configuration settings
-├── requirements.txt      # Python dependencies
-├── Dockerfile           # Docker configuration
-├── docker-compose.yml   # Docker Compose setup
-├── api/                 # FastAPI application
-│   └── app.py          # API routes and logic
-├── models/              # ML models
-│   └── sklearn_model.py # Main classification model
-├── utils/               # Utility functions
-│   ├── text_extraction.py
-│   ├── cloudinary_utils.py
-│   └── document_analyzer.py
-├── preprocessor/        # Text preprocessing
-│   └── text_processor.py
-└── data/
-    └── models/         # Trained model files
-        └── commercial_doc_classifier_excellence.pkl
-```
+---
 
 ## 🔧 Configuration
 
@@ -160,6 +88,8 @@ Key configuration options in `config.py`:
 - `API_PORT`: API server port (default: 8000)
 - `CONFIDENCE_THRESHOLD`: Minimum confidence for predictions
 - `DOCUMENT_CLASSES`: Supported document types
+
+---
 
 ## 📈 Model Performance
 
