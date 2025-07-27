@@ -3,8 +3,15 @@ import csv
 import json
 import random
 import logging
-import pandas as pd
 import config
+
+# Try to import pandas, but make it optional for now
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
+    print("Warning: pandas not available, some functions may not work")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -31,6 +38,17 @@ def load_sample_data(data_path=None):
     logger.info(f"Loading sample data from {data_path}")
     
     try:
+        if not PANDAS_AVAILABLE:
+            # Fallback to CSV reading without pandas
+            X, y = [], []
+            with open(data_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    X.append(row['text'])
+                    y.append(row['label'])
+            logger.info(f"Loaded {len(X)} samples (without pandas)")
+            return X, y
+        
         df = pd.read_csv(data_path)
         X = df['text'].tolist()
         y = df['label'].tolist()
@@ -228,9 +246,18 @@ def augment_with_additional_data(X, y, additional_data_path=None):
         logger.info(f"Augmenting with additional data from {additional_data_path}")
         
         try:
-            df = pd.read_csv(additional_data_path)
-            additional_X = df['text'].tolist()
-            additional_y = df['label'].tolist()
+            if not PANDAS_AVAILABLE:
+                # Fallback to CSV reading without pandas
+                additional_X, additional_y = [], []
+                with open(additional_data_path, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        additional_X.append(row['text'])
+                        additional_y.append(row['label'])
+            else:
+                df = pd.read_csv(additional_data_path)
+                additional_X = df['text'].tolist()
+                additional_y = df['label'].tolist()
             
             # Count original samples per class
             class_counts = {}
