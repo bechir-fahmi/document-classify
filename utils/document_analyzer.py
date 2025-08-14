@@ -73,13 +73,14 @@ DOCUMENT_PATTERNS = {
         "strong_patterns": [
             r'bon\s*de\s*commande',
             r'purchase\s*order',
-            r'po\s*[#:n°]',
-            r'bc\s*[#:n°]',
+            r'\bpo\s*[#:n°]',
+            r'\bbc\s*[#:n°]',
             r'order\s*[#:n°]',
             r'commande\s*[#:n°]',
-            r'commande\s*n',
+            r'commande\s*n[o°]',
             r'articles\s*commandés',
-            r'prix\s*unitaire'
+            r'prix\s*unitaire',
+            r'purchase\s*order\s*number'
         ]
     },
     "delivery_note": {
@@ -126,20 +127,37 @@ DOCUMENT_PATTERNS = {
         "keywords": [
             "relevé bancaire", "bank statement", "account", "compte", "balance", "solde",
             "transactions", "opérations", "credits", "debits", "period", "période",
-            "relevé de compte", "crédit", "débit", "date"
+            "relevé de compte", "crédit", "débit", "date", "attijariwafa", "bmce", "cih",
+            "banque populaire", "crédit agricole", "société générale", "bnp paribas",
+            "virement", "prélèvement", "chèque", "espèces", "versement", "paiement",
+            "crediteur", "debiteur", "devise", "dirham", "euro", "dollar", "agence",
+            "releve d'identite bancaire", "rib", "iban", "swift", "bic"
         ],
         "strong_patterns": [
             r'relevé\s*bancaire',
-            r'relevé\s*de\s*compte',
+            r'relevé\s*de\s*compte\s*bancaire',
+            r'releve\s*de\s*compte\s*bancaire',
             r'bank\s*statement',
             r'account\s*[#:n°]',
             r'compte\s*[#:n°]',
             r'solde\s*initial',
             r'solde\s*final',
+            r'solde\s*depart',
             r'opening\s*balance',
             r'closing\s*balance',
             r'solde\s*et\s*(crédit|débit)',
-            r'crédit\s*et\s*débit'
+            r'crédit\s*et\s*débit',
+            r'crediteur\s*debit',
+            r'total\s*mouvements',
+            r'releve\s*d.identite\s*bancaire',
+            r'relevé\s*d.identité\s*bancaire',
+            r'attijariwafa\s*bank',
+            r'devise\s*:\s*dirham',
+            r'agence\s*:',
+            r'virement\s*(recu|emis)',
+            r'paiement\s*cheque',
+            r'versement\s*espece',
+            r'prelevement\s*en\s*fav'
         ]
     },
     "expense_report": {
@@ -388,7 +406,16 @@ def analyze_document(file_path):
     # 6. Bank Statement (Relevé bancaire / كشف حساب)
     if (
         "relevé de compte" in lower_text or
-        ("solde" in lower_text and ("crédit" in lower_text or "débit" in lower_text))
+        "releve de compte" in lower_text or
+        "relevé bancaire" in lower_text or
+        "releve bancaire" in lower_text or
+        "bank statement" in lower_text or
+        "attijariwafa bank" in lower_text or
+        ("solde" in lower_text and ("crédit" in lower_text or "débit" in lower_text)) or
+        ("solde" in lower_text and ("crediteur" in lower_text or "debiteur" in lower_text)) or
+        ("total mouvements" in lower_text) or
+        ("devise" in lower_text and "dirham" in lower_text) or
+        ("agence" in lower_text and "compte" in lower_text)
     ):
         return "bank_statement"
 
