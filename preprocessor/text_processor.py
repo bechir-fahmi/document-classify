@@ -74,7 +74,9 @@ def clean_text(text):
     
     # Normalize spaces around Arabic text
     # Add spaces around Arabic character sequences to ensure proper tokenization
-    text = re.sub(r'([^\u0600-\u06FF\s])([^\u0600-\u06FF\s])', r'\1 \2', text)
+    # Only add spaces between Arabic and non-Arabic characters, not between all non-Arabic characters
+    text = re.sub(r'([\u0600-\u06FF])([^\u0600-\u06FF\s])', r'\1 \2', text)  # Arabic to non-Arabic
+    text = re.sub(r'([^\u0600-\u06FF\s])([\u0600-\u06FF])', r'\1 \2', text)  # non-Arabic to Arabic
     
     # Remove special characters but preserve spaces between words and Arabic characters
     text = re.sub(r'[^\w\s\u0600-\u06FF]', ' ', text)
