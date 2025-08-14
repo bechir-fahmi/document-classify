@@ -121,59 +121,53 @@ def train_enhanced_model(model_type=None, optimize=False):
         df['processed_text'] = df['text'].apply(lambda text: text.lower() if isinstance(text, str) else "")
         
         # Split into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(
-            df['processed_text'], 
-            df['label'], 
-            test_size=0.2, 
-            random_state=42,
-            stratify=df['label']
-        )
+        # Check if stratification is possible (all classes need at least 2 samples)
+        min_class_count = df['label'].value_counts().min()
+        
+        if min_class_count >= 2:
+            logger.info("Using stratified split (all classes have >= 2 samples)")
+            X_train, X_test, y_train, y_test = train_test_split(
+                df['processed_text'], 
+                df['label'], 
+                test_size=0.2, 
+                random_state=42,
+                stratify=df['label']
+            )
+        else:
+            logger.info(f"Using random split (some classes have only {min_class_count} sample)")
+            X_train, X_test, y_train, y_test = train_test_split(
+                df['processed_text'], 
+                df['label'], 
+                test_size=0.2, 
+                random_state=42
+            )
         
         logger.info(f"Training set size: {len(X_train)}")
         logger.info(f"Testing set size: {len(X_test)}")
         
-        # Create the pipeline
-        pipeline = Pipeline([
-            ('tfidf', TfidfVectorizer(
-                ngram_range=(1, 3),
-                max_features=5000,
-                min_df=2
-            )),
-            ('classifier', OneVsRestClassifier(LinearSVC(random_state=42)))
-        ])
+        # Use the SklearnClassifier for consistency
+        logger.info("Training enhanced model using SklearnClassifier...")
+        model = get_model(model_type)
         
-        # Train the model
-        logger.info("Training enhanced SVM model...")
-        pipeline.fit(X_train, y_train)
+        # Train the model with the complete dataset
+        X_data = df['text'].values
+        y_data = df['label'].values
         
-        # Evaluate on test set
-        from sklearn.metrics import classification_report, accuracy_score
-        y_pred = pipeline.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
+        success = model.train(X_data, y_data, test_size=0.2, optimize=optimize)
         
-        logger.info(f"Model training complete. Test accuracy: {accuracy:.4f}")
-        
-        # Generate the classification report
-        report = classification_report(y_test, y_pred, output_dict=True)
-        
-        # Save the enhanced model
-        enhanced_model_path = os.path.join(config.MODEL_DIR, "commercial_doc_classifier_enhanced.pkl")
-        
-        logger.info(f"Saving enhanced model to {enhanced_model_path}")
-        with open(enhanced_model_path, 'wb') as f:
-            pickle.dump(pipeline, f)
-        
-        # Update the default SklearnClassifier model as well for compatibility
-        standard_model_path = os.path.join(config.MODEL_DIR, "sklearn_tfidf_svm.pkl")
+        if success:
+            logger.info("Enhanced model training completed successfully!")
+            
+            # Save the model
+            model.save_model()
+            logger.info("Enhanced model saved successfully!")
+            
+            return {"status": "success", "message": "Enhanced training completed"}
+        else:
+            logger.error("Enhanced model training failed!")
+            return {"status": "error", "message": "Enhanced training failed"}
         logger.info(f"Updating standard model file at {standard_model_path}")
-        with open(standard_model_path, 'wb') as f:
-            pickle.dump(pipeline, f)
-        
-        # Return the metrics
-        return {
-            'accuracy': accuracy,
-            'report': report
-        }
+
     
     except Exception as e:
         logger.error(f"Error in enhanced training process: {str(e)}")
