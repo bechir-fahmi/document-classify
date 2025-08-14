@@ -4,41 +4,41 @@ DATASET AND CONFIDENCE ANALYSIS REPORT
 
 📊 DATASET OVERVIEW
 ----------------------------------------
-Total samples: 10,443
-Unique document types: 12
-Average text length: 372.1 characters
+Total samples: 7,363
+Unique document types: 15
+Average text length: 354.9 characters
 
 📈 DOCUMENT TYPE DISTRIBUTION
 ----------------------------------------
-receipt                    1,836 samples ( 17.6%)
-purchase_order             1,836 samples ( 17.6%)
-shipping_orders            1,560 samples ( 14.9%)
-invoice                    1,530 samples ( 14.7%)
-delivery_note              1,236 samples ( 11.8%)
-expense_report               502 samples (  4.8%)
-quote                        502 samples (  4.8%)
-bank_statement               502 samples (  4.8%)
-payslip                      502 samples (  4.8%)
-inventory_document           208 samples (  2.0%)
-report                       207 samples (  2.0%)
-contract                      22 samples (  0.2%)
+purchase_order             2,832 samples ( 38.5%)
+delivery_note              1,311 samples ( 17.8%)
+invoice                      863 samples ( 11.7%)
+bank_statement               605 samples (  8.2%)
+quote                        502 samples (  6.8%)
+expense_report               502 samples (  6.8%)
+payslip                      502 samples (  6.8%)
+inventory_document           208 samples (  2.8%)
+receipt                       23 samples (  0.3%)
+contract                      10 samples (  0.1%)
+credit_note                    1 samples (  0.0%)
+debit_note                     1 samples (  0.0%)
+tax_declaration                1 samples (  0.0%)
+fixed_asset_document           1 samples (  0.0%)
+journal_entry                  1 samples (  0.0%)
 
 🎯 CONFIDENCE SCORE ANALYSIS
 ----------------------------------------
 Document Type             Confidence  Std Dev  Samples
 ------------------------------------------------------------
-bank_statement                0.963   0.006     101
-receipt                       0.962   0.057     341
-purchase_order                0.960   0.027     367
-payslip                       0.959   0.013     101
-expense_report                0.956   0.012     100
-quote                         0.956   0.037     101
-delivery_note                 0.903   0.153     120
-invoice                       0.861   0.071     333
-shipping_orders               0.680   0.070     439
-contract                      0.624   0.000       3
-report                        0.513   0.046      43
-inventory_document            0.502   0.028      40
+delivery_note                 0.969   0.020     262
+purchase_order                0.967   0.070     572
+quote                         0.960   0.012     100
+payslip                       0.960   0.015     100
+bank_statement                0.960   0.064     121
+expense_report                0.956   0.010     100
+invoice                       0.938   0.073     172
+inventory_document            0.904   0.028      42
+receipt                       0.340   0.021       3
 
 🏆 PERFORMANCE CATEGORIES
 ----------------------------------------
@@ -46,19 +46,16 @@ High Confidence (>0.8): 8 types
   • bank_statement
   • delivery_note
   • expense_report
+  • inventory_document
   • invoice
   • payslip
   • purchase_order
   • quote
+
+Medium Confidence (0.6-0.8): 0 types
+
+Low Confidence (<0.6): 1 types
   • receipt
-
-Medium Confidence (0.6-0.8): 2 types
-  • contract
-  • shipping_orders
-
-Low Confidence (<0.6): 2 types
-  • inventory_document
-  • report
 
 💡 RECOMMENDATIONS
 ----------------------------------------
