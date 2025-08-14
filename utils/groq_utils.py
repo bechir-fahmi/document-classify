@@ -69,9 +69,18 @@ def extract_text_from_image(image_path: str) -> Dict[str, Any]:
         # Parse the response
         response = completion.choices[0].message.content
         
+        # Try to parse JSON and extract text field
+        try:
+            import json
+            parsed_response = json.loads(response)
+            extracted_text = parsed_response.get("text", response)
+        except (json.JSONDecodeError, KeyError):
+            # If JSON parsing fails, use the raw response
+            extracted_text = response
+        
         return {
             "success": True,
-            "text": response,
+            "text": extracted_text,
             "model": "groq-vision"
         }
         
