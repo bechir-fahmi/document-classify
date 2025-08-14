@@ -22,7 +22,7 @@ API_HOST = "0.0.0.0"
 API_PORT = 8000
 
 # Model Settings
-DEFAULT_MODEL = "sklearn_tfidf_svm"  # Options: "sklearn_tfidf_svm", "bert", "layoutlm"
+DEFAULT_MODEL = "sklearn_tfidf_svm"  # Options: "sklearn_tfidf_svm", "enhanced_sklearn", "bert", "layoutlm"
 CONFIDENCE_THRESHOLD = 0.10  # Lowered to better handle multilingual documents with low confidence
 
 # Document Classes
