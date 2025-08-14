@@ -287,6 +287,28 @@ class SklearnClassifier:
         
         text_lower = text.lower()
         
+        # SPEED OPTIMIZATION: Get ML prediction first and skip expensive checks if confident
+        prediction = self.pipeline.predict([text])[0]
+        try:
+            probabilities = self.pipeline.predict_proba([text])[0]
+            confidence_scores = dict(zip(self.pipeline.classes_, probabilities))
+        except (AttributeError, NotImplementedError):
+            decision_values = self.pipeline.decision_function([text])[0]
+            e_x = np.exp(decision_values - np.max(decision_values))
+            probabilities = e_x / e_x.sum()
+            confidence_scores = dict(zip(self.pipeline.classes_, probabilities))
+        
+        confidence = confidence_scores.get(prediction, 0.0)
+        
+        # If ML model is very confident (≥80%), skip expensive rule checks
+        if confidence >= 0.8:
+            logger.info(f"High confidence prediction ({confidence:.3f}), skipping rule checks")
+            return {
+                "prediction": prediction,
+                "confidence": confidence,
+                "confidence_scores": confidence_scores
+            }
+        
         # First check for definitive invoice markers - these take precedence over everything
         definitive_invoice_match = False
         for marker in definitive_invoice_markers:
@@ -451,7 +473,7 @@ class SklearnClassifier:
                 r'n[°o]?\s*facture', r'invoice number', r'facture n[°o]?', r'فاتورة\s*الشهر', r'facture.*\d{4,}'
             ],
             'purchase_order': [
-                r'bon\s+de\s+commande\s*[#:n°]?', r'purchase order\s*[#:n°]?', r'p\.?o\.?\s*[#:n°]?', r'bc\s*n[°o]?', r'b\.c\.\s*n[°o]?',
+                r'bon\s+de\s+commande\s*[#:n°]?', r'purchase order\s*[#:n°]?', r'\bp\.?o\.?\s*[#:n°]', r'bc\s*n[°o]?', r'b\.c\.\s*n[°o]?',
                 r'numéro\s*de\s*commande', r'order number', r'bon de commande', r'purchase order',
                 r'bon de commande n[°o]?', r'purchase order n[°o]?'
             ],
@@ -468,8 +490,10 @@ class SklearnClassifier:
                 r'numéro de reçu', r'reçu de caisse'
             ],
             'bank_statement': [
-                r'relevé bancaire', r'bank statement', r'relevé de compte', r'statement\s*[#:n°]?',
-                r'relevé\s*n[°o]?', r'bank statement n[°o]?'
+                r'relevé bancaire', r'bank statement', r'relevé de compte bancaire', r'releve de compte bancaire',
+                r'statement\s*[#:n°]?', r'relevé\s*n[°o]?', r'bank statement n[°o]?', r'attijariwafa bank',
+                r'releve d.identite bancaire', r'relevé d.identité bancaire', r'total mouvements',
+                r'solde depart', r'solde final', r'crediteur', r'devise\s*:\s*dirham'
             ],
             'expense_report': [
                 r'note de frais', r'expense report', r'note de frais\s*n[°o]?', r'expense report\s*[#:n°]?',
