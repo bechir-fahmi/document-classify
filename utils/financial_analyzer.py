@@ -354,7 +354,18 @@ class FinancialReportGenerator:
             },
             'transaction_count': len(recent_transactions),
             'recommendations': recommendations,
-            'generated_at': datetime.now().isoformat()
+            'generated_at': datetime.now().isoformat(),
+            'details_transactions': [
+                {
+                    'document_id': t.document_id,
+                    'type': t.document_type,
+                    'montant': round(t.amount, 2),
+                    'compte_comptable': '701' if t.category == 'income' else '607',
+                    'libelle': t.description,
+                    'date': t.date.isoformat() if t.date else None
+                }
+                for t in recent_transactions
+            ]
         }
     
     def _generate_recommendations(self, income: float, expenses: float, potential: float, 
