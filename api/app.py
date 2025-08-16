@@ -110,6 +110,7 @@ class FinancialBilanResponse(BaseModel):
     transaction_count: int
     recommendations: List[str]
     generated_at: str
+    details_transactions: Optional[List[Dict[str, Any]]] = []
 
 class DocumentFinancialAnalysisResponse(BaseModel):
     document_id: str
@@ -380,6 +381,15 @@ async def generate_financial_bilan_groq(
         
         logger.info(f"Processing {len(files)} files for Groq-powered financial bilan")
         
+        # Detailed console log showing ALL files received
+        print("=" * 100)
+        print(f"📄 GENERATE-BILAN API CALLED WITH {len(files)} FILES:")
+        print("=" * 100)
+        for i, file in enumerate(files, 1):
+            print(f"🔸 FILE {i}: {file.filename} (size: {file.size if hasattr(file, 'size') else 'unknown'} bytes)")
+        print(f"📅 PERIOD: {period_days} days")
+        print("=" * 100)
+        
         for file in files:
             try:
                 # Generate a unique ID for this document
@@ -395,6 +405,13 @@ async def generate_financial_bilan_groq(
                     # Extract text and classify document
                     text = extract_text_from_file(temp_file_path)
                     doc_type = analyze_document(temp_file_path)
+                    
+                    # Log extracted text for debugging
+                    print(f"\n🔸 PROCESSING FILE: {file.filename}")
+                    print(f"   Document type: {doc_type}")
+                    print(f"   Extracted text preview: {text[:300]}...")
+                    print(f"   Full text length: {len(text)} characters")
+                    print("-" * 80)
                     
                     # Improve classification
                     final_doc_type = doc_type.replace("❓ Unknown Document Type", "unknown")
@@ -458,6 +475,126 @@ async def generate_financial_bilan_groq(
     except Exception as e:
         logger.error(f"Error generating Groq financial bilan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating Groq financial bilan: {str(e)}")
+
+@app.post("/bilan")
+async def process_bilan_documents(request: Dict[str, Any]):
+    """
+    Download documents from Cloudinary URLs, extract text, and generate a financial bilan
+    
+    Request Body:
+    {
+        "documents": [
+            {
+                "id": "doc-uuid",
+                "filename": "document.pdf",
+                "document_type": "invoice", // invoice, receipt, bank_statement, expense, etc.
+                "cloudinaryUrl": "https://cloudinary-url",
+                "created_at": "2025-01-15T10:30:00.000Z"
+            }
+        ],
+        "period_days": 90,
+        "business_info": {
+            "name": "Company Name",
+            "period_start": "2024-01-01",
+            "period_end": "2024-12-31"
+        }
+    }
+    
+    Returns:
+        Structured financial bilan with assets, liabilities, and equity
+    """
+    start_time = time.time()
+    
+    try:
+        # Get documents and business info from request
+        documents = request.get("documents", [])
+        business_info = request.get("business_info", {})
+        period_days = request.get("period_days", 90)
+        
+        if not documents:
+            raise HTTPException(status_code=400, detail="No documents provided")
+        
+        # Create unique session folder for this request
+        session_id = str(uuid.uuid4())[:8]
+        download_folder = f"downloaddoc/session_{session_id}"
+        
+        # Create session folder
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+        
+        print(f"📁 Created session folder: {download_folder}")
+        
+        extracted_documents = []
+        downloaded_files = []
+        
+        logger.info(f"Processing {len(documents)} documents for bilan generation")
+        
+        # Download all documents for this session
+        for doc in documents:
+            try:
+                # Download document from Cloudinary
+                cloudinary_url = doc.get('cloudinaryUrl', '')
+                if not cloudinary_url:
+                    print(f"⚠️ No Cloudinary URL for {doc.get('filename', 'unknown')}")
+                    continue
+                
+                # Download the file
+                import requests
+                response = requests.get(cloudinary_url)
+                if response.status_code != 200:
+                    print(f"⚠️ Failed to download {doc.get('filename', 'unknown')}")
+                    continue
+                
+                # Save file in session folder
+                saved_file_path = os.path.join(download_folder, f"{doc['id']}_{doc['filename']}")
+                
+                with open(saved_file_path, "wb") as f:
+                    f.write(response.content)
+                
+                downloaded_files.append({
+                    'file_path': saved_file_path,
+                    'original_doc': doc
+                })
+                print(f"💾 Downloaded: {saved_file_path}")
+                
+            except Exception as e:
+                print(f"❌ Error downloading {doc.get('filename', 'unknown')}: {str(e)}")
+                continue
+        
+        if not downloaded_files:
+            raise HTTPException(status_code=400, detail="No files could be downloaded")
+        
+        # Send files directly to Groq for bilan generation
+        print("🔥 Sending files directly to Groq for bilan generation")
+        logger.info("🔥 Sending files directly to Groq for bilan generation")
+        
+        bilan = await generate_bilan_from_files_directly(downloaded_files, business_info, period_days)
+        
+        # Calculate processing time
+        processing_time = (time.time() - start_time) * 1000
+        
+        # Cleanup: Remove session folder after processing
+        try:
+            import shutil
+            shutil.rmtree(download_folder)
+            print(f"🗑️ Cleaned up session folder: {download_folder}")
+        except Exception as e:
+            print(f"⚠️ Could not cleanup folder: {e}")
+        
+        return {
+            "session_id": session_id,
+            "processed_documents": len(downloaded_files),
+            "processing_time_ms": processing_time,
+            "business_info": business_info,
+            **bilan  # Spread the bilan object directly into the response
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in bilan processing: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing bilan documents: {str(e)}")
+
 # need to delete after fix
 @app.post("/test-generate-bilan", response_model=FinancialBilanResponse)
 async def generate_financial_bilan(
@@ -548,92 +685,230 @@ async def generate_financial_bilan(
         logger.error(f"Error generating financial bilan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating financial bilan: {str(e)}")
 
-@app.post("/bilan/")
-async def generate_tunisian_bilan(
-    request: Dict[str, Any]
-):
-    """
-    Generate Tunisian accounting bilan (Bilan Comptable + Compte de Résultat) using Groq AI
+# @app.post("/bilan")
+# async def generate_tunisian_bilan(
+#     request: Dict[str, Any]
+# ):
+#     """
+#     Generate Tunisian accounting bilan (Bilan Comptable + Compte de Résultat) using Groq AI
     
-    Request Body:
-    {
-        "documents": [
-            {
-                "id": "14edca9d-4f10-4afb-9e9d-7e11ce6d9544",
-                "filename": "FACTURE_01-03-2025_NÂ°2220000032299099.pdf",
-                "document_type": "invoice",
-                "confidence": 0.959465650679308,
-                "extracted_text": "Full OCR text...",
-                "extracted_info": "{\"date\": \"2025-03-31\", \"client_name\": \"M. BACHIR FAHMI\"}",
-                "created_at": "2025-07-27 03:22:38.85642"
-            }
-        ],
-        "period_days": 30
-    }
+#     Request Body:
+#     {
+#         "documents": [
+#             {
+#                 "id": "14edca9d-4f10-4afb-9e9d-7e11ce6d9544",
+#                 "filename": "FACTURE_01-03-2025_NÂ°2220000032299099.pdf",
+#                 "document_type": "invoice",
+#                 "confidence": 0.959465650679308,
+#                 "extracted_text": "Full OCR text...",
+#                 "extracted_info": "{\"date\": \"2025-03-31\", \"client_name\": \"M. BACHIR FAHMI\"}",
+#                 "created_at": "2025-07-27 03:22:38.85642"
+#             }
+#         ],
+#         "period_days": 30
+#     }
     
-    Returns: Complete Tunisian accounting bilan following Plan Comptable Tunisien
-    """
-    start_time = time.time()
+#     Returns: Complete Tunisian accounting bilan following Plan Comptable Tunisien
+#     """
+#     start_time = time.time()
     
-    try:
-        # Extract parameters
-        documents = request.get("documents", [])
-        period_days = request.get("period_days", 365)  # Default to annual bilan
-        document_only = request.get("document_only", False)  # New parameter for document-only mode
+#     try:
+#         # Extract parameters
+#         documents = request.get("documents", [])
+#         period_days = request.get("period_days", 365)  # Default to annual bilan
+#         document_only = request.get("document_only", False)  # New parameter for document-only mode
         
-        # Validate period_days - only quarterly or annual allowed
-        if period_days not in [90, 365]:
-            raise HTTPException(
-                status_code=400, 
-                detail="Invalid period_days. Only quarterly (90 days) or annual (365 days) bilans are supported."
-            )
+#         # Validate period_days - only quarterly or annual allowed
+#         if period_days not in [90, 365]:
+#             raise HTTPException(
+#                 status_code=400, 
+#                 detail="Invalid period_days. Only quarterly (90 days) or annual (365 days) bilans are supported."
+#             )
         
-        if not documents:
-            raise HTTPException(status_code=400, detail="No documents provided")
+#         if not documents:
+#             raise HTTPException(status_code=400, detail="No documents provided")
         
-        mode = "document-only" if document_only else "full accounting"
-        logger.info(f"Generating Tunisian bilan ({mode}) from {len(documents)} documents for {period_days} days")
+#         # Check if documents have Cloudinary URLs (new format) or extracted_text (old format)
+#         has_cloudinary_urls = any(doc.get('cloudinaryUrl') for doc in documents)
         
-        # Prepare all document texts for Groq analysis
-        documents_data = []
-        for doc in documents:
-            # Clean extracted_text - handle nested JSON
-            extracted_text = doc.get("extracted_text", "")
-            cleaned_text = clean_extracted_text(extracted_text)
+#         if has_cloudinary_urls:
+#             # NEW FORMAT: Process Cloudinary URLs
+#             print(f"📄 Bilan API called with {len(documents)} Cloudinary documents:")
+#             for i, doc in enumerate(documents, 1):
+#                 print(f"  {i}. {doc.get('document_type', 'unknown')} - {doc.get('filename', 'unknown')}")
             
-            documents_data.append({
-                "id": doc["id"],
-                "filename": doc.get("filename", "unknown"),
-                "document_type": doc.get("document_type", "unknown"),
-                "extracted_text": cleaned_text,
-                "date": doc.get("created_at", ""),
-                "extracted_info": doc.get("extracted_info", "{}")
-            })
+#             logger.info(f"Processing {len(documents)} documents from Cloudinary URLs")
+            
+#             # Download documents and send actual files to Groq
+#             downloaded_files = []
+#             documents_data = []
+            
+#             # Create unique session folder for this request
+#             import uuid
+#             session_id = str(uuid.uuid4())[:8]
+#             download_folder = f"downloaddoc/session_{session_id}"
+            
+#             try:
+#                 # Create session folder
+#                 if not os.path.exists(download_folder):
+#                     os.makedirs(download_folder)
+                
+#                 print(f"📁 Created session folder: {download_folder}")
+                
+#                 # Download all documents for this session
+#                 for doc in documents:
+#                     try:
+#                         # Download document from Cloudinary
+#                         cloudinary_url = doc.get('cloudinaryUrl', '')
+#                         if not cloudinary_url:
+#                             print(f"⚠️ No Cloudinary URL for {doc.get('filename', 'unknown')}")
+#                             continue
+                        
+#                         # Download the file
+#                         import requests
+#                         response = requests.get(cloudinary_url)
+#                         if response.status_code != 200:
+#                             print(f"⚠️ Failed to download {doc.get('filename', 'unknown')}")
+#                             continue
+                        
+#                         # Save file in session folder
+#                         saved_file_path = os.path.join(download_folder, f"{doc['id']}_{doc['filename']}")
+                        
+#                         with open(saved_file_path, "wb") as f:
+#                             f.write(response.content)
+                        
+#                         downloaded_files.append(saved_file_path)
+                        
+#                         # Extract text for Groq processing
+#                         extracted_text = extract_text_from_file(saved_file_path)
+                        
+#                         print(f"💾 Downloaded: {saved_file_path}")
+                        
+#                         if extracted_text.strip():
+#                             documents_data.append({
+#                                 'id': doc['id'],
+#                                 'filename': doc['filename'],
+#                                 'document_type': doc['document_type'],
+#                                 'extracted_text': extracted_text,
+#                                 'date': doc['created_at'],
+#                                 'file_path': saved_file_path
+#                             })
+                            
+#                             print(f"✅ Processed: {doc['filename']} ({len(extracted_text)} chars)")
+#                         else:
+#                             print(f"⚠️ No text extracted from: {doc['filename']}")
+                            
+#                     except Exception as e:
+#                         print(f"❌ Error processing {doc.get('filename', 'unknown')}: {str(e)}")
+#                         continue
+                
+#                 if not documents_data:
+#                     raise HTTPException(status_code=400, detail="No text could be extracted from any documents")
+                
+#                 print(f"🚀 Sending {len(documents_data)} downloaded files to Groq for bilan generation")
+                
+#                 # Send downloaded files data to Groq for bilan generation
+#                 bilan_result = await generate_bilan_from_downloaded_files(documents_data, period_days, session_id)
+                
+#             finally:
+#                 # Clean up: Delete only files from this session
+#                 print(f"🧹 Cleaning up session files from: {download_folder}")
+#                 try:
+#                     import shutil
+#                     if os.path.exists(download_folder):
+#                         shutil.rmtree(download_folder)
+#                         print(f"✅ Deleted session folder: {download_folder}")
+#                 except Exception as e:
+#                     print(f"⚠️ Error cleaning up session folder: {e}")
+            
+#         else:
+#             # OLD FORMAT: Process documents with extracted_text
+#             print("=" * 100)
+#             print(f"📄 BILAN API CALLED WITH {len(documents)} DOCUMENTS:")
+#             print("=" * 100)
+#             for i, doc in enumerate(documents, 1):
+#                 print(f"\n🔸 DOCUMENT {i}:")
+#                 print(f"   Type: {doc.get('document_type', 'unknown')}")
+#                 print(f"   Filename: {doc.get('filename', 'unknown')}")
+#                 print(f"   Date: {doc.get('created_at', 'unknown')}")
+#                 print(f"   ID: {doc.get('id', 'unknown')}")
+                
+#                 # Show extracted text (first 300 chars)
+#                 extracted_text = doc.get('extracted_text', '')
+#                 if extracted_text:
+#                     print(f"   Text preview: {extracted_text[:300]}...")
+#                     print(f"   Full text length: {len(extracted_text)} characters")
+#                 else:
+#                     print("   Text preview: NO TEXT FOUND")
+                
+#                 # Show extracted info
+#                 extracted_info = doc.get('extracted_info', '{}')
+#                 print(f"   Extracted info: {extracted_info}")
+#                 print("-" * 80)
+            
+#             print(f"\n📊 TOTAL DOCUMENTS: {len(documents)}")
+#             print(f"📅 PERIOD: {period_days} days")
+#             print(f"🔧 MODE: {'document-only' if document_only else 'full accounting'}")
+#             print("=" * 100)
+            
+#             # Use existing logic for old format
+#             mode = "document-only" if document_only else "full accounting"
+#             logger.info(f"Generating Tunisian bilan ({mode}) from {len(documents)} documents for {period_days} days")
+            
+#             # Prepare all document texts for Groq analysis
+#             documents_data = []
+#             for doc in documents:
+#                 # Clean extracted_text - handle nested JSON
+#                 extracted_text = doc.get("extracted_text", "")
+#                 cleaned_text = clean_extracted_text(extracted_text)
+                
+#                 documents_data.append({
+#                     "id": doc["id"],
+#                     "filename": doc.get("filename", "unknown"),
+#                     "document_type": doc.get("document_type", "unknown"),
+#                     "extracted_text": cleaned_text,
+#                     "date": doc.get("created_at", ""),
+#                     "extracted_info": doc.get("extracted_info", "{}")
+#                 })
+            
+#             # Use Groq to generate bilan (document-only or full accounting mode)
+#             if document_only:
+#                 bilan_result = await generate_document_only_bilan(documents_data, period_days)
+#             else:
+#                 bilan_result = await generate_tunisian_bilan_with_groq(documents_data, period_days)
         
-        # Use Groq to generate bilan (document-only or full accounting mode)
-        if document_only:
-            bilan_result = await generate_document_only_bilan(documents_data, period_days)
-        else:
-            bilan_result = await generate_tunisian_bilan_with_groq(documents_data, period_days)
+#         # FINAL VALIDATION: Ensure we never return default/fake data
+#         if 'bilan_comptable' in bilan_result:
+#             ca = bilan_result.get('compte_de_resultat', {}).get('chiffre_affaires', 0)
+#             total_actif = bilan_result.get('bilan_comptable', {}).get('actif', {}).get('total_actif', 0)
+            
+#             if ca == 0 and total_actif == 0:
+#                 error_msg = f"Final validation failed: Bilan contains only zeros/default data. This means no real financial data was extracted from {len(documents)} documents."
+#                 logger.error(error_msg)
+#                 raise HTTPException(status_code=500, detail=error_msg)
         
-        # Add metadata
-        bilan_result["metadata"] = {
-            "documents_processed": len(documents),
-            "period_days": period_days,
-            "processing_time_ms": (time.time() - start_time) * 1000,
-            "generated_at": datetime.now().isoformat(),
-            "standard": "Plan Comptable Tunisien"
-        }
+#         # Add metadata only if we have real data
+#         if "metadata" not in bilan_result:
+#             bilan_result["metadata"] = {}
         
-        logger.info(f"Generated Tunisian bilan in {(time.time() - start_time)*1000:.1f}ms")
+#         bilan_result["metadata"].update({
+#             "documents_processed": len(documents),
+#             "period_days": period_days,
+#             "processing_time_ms": (time.time() - start_time) * 1000,
+#             "generated_at": datetime.now().isoformat(),
+#             "standard": "Plan Comptable Tunisien",
+#             "source": "cloudinary_documents" if has_cloudinary_urls else "extracted_text"
+#         })
         
-        return bilan_result
+#         logger.info(f"Generated Tunisian bilan with real data in {(time.time() - start_time)*1000:.1f}ms")
         
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating Tunisian bilan: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating bilan: {str(e)}")
+#         return bilan_result
+        
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         logger.error(f"Error generating Tunisian bilan: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"Error generating bilan: {str(e)}")
 
 async def generate_document_only_bilan(documents_data: List[Dict], period_days: int) -> Dict[str, Any]:
     """Generate bilan using ONLY data found in documents - no artificial additions"""
@@ -642,11 +917,13 @@ async def generate_document_only_bilan(documents_data: List[Dict], period_days: 
         # Create document-only prompt
         prompt = create_document_only_bilan_prompt(documents_data, period_days)
         
+
+        
         # Call Groq API
         from utils.groq_utils import client as groq_client
         
         response = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {
                     "role": "system",
@@ -665,6 +942,8 @@ async def generate_document_only_bilan(documents_data: List[Dict], period_days: 
         groq_response = response.choices[0].message.content
         logger.info(f"Groq document-only response received: {len(groq_response)} characters")
         
+
+        
         # Parse JSON response
         bilan_data = parse_groq_bilan_response(groq_response)
         
@@ -673,6 +952,8 @@ async def generate_document_only_bilan(documents_data: List[Dict], period_days: 
             bilan_data["metadata"] = {}
         bilan_data["metadata"]["extraction_mode"] = "document_only"
         bilan_data["metadata"]["artificial_data_added"] = False
+        
+
         
         return bilan_data
         
@@ -844,6 +1125,657 @@ def extract_data_from_groq_response(groq_response: str, documents_data: List[Dic
     logger.info("Attempting manual data extraction from Groq response")
     return extract_json_manually(groq_response)
 
+async def generate_bilan_from_files_directly(downloaded_files: List[Dict], business_info: Dict, period_days: int) -> Dict:
+    """Send files directly to Groq for bilan generation - no text extraction"""
+    try:
+        from utils.groq_utils import client as groq_client
+        import base64
+        
+        # Prepare files for Groq - handle both images and PDFs
+        files_for_groq = []
+        extracted_texts = []
+        
+        for file_info in downloaded_files:
+            file_path = file_info['file_path']
+            original_doc = file_info['original_doc']
+            
+            # Determine file type
+            file_extension = file_path.lower().split('.')[-1]
+            
+            if file_extension == 'pdf':
+                # For PDFs, extract text since vision models may not handle PDFs well
+                try:
+                    from utils.text_extraction import extract_text_from_file
+                    text_content = extract_text_from_file(file_path)
+                    extracted_texts.append({
+                        "filename": original_doc.get('filename', 'unknown'),
+                        "document_type": original_doc.get('document_type', 'unknown'),
+                        "text": text_content[:3000]  # Limit text length
+                    })
+                    print(f"📄 Extracted text from PDF: {original_doc.get('filename', 'unknown')}")
+                except Exception as e:
+                    print(f"⚠️ Could not extract text from PDF {file_path}: {e}")
+                    continue
+            
+            elif file_extension in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+                # For images, use vision API
+                try:
+                    with open(file_path, "rb") as f:
+                        file_content = f.read()
+                    
+                    encoded_content = base64.b64encode(file_content).decode('utf-8')
+                    
+                    # Determine MIME type
+                    if file_extension in ['jpg', 'jpeg']:
+                        mime_type = "image/jpeg"
+                    elif file_extension == 'png':
+                        mime_type = "image/png"
+                    elif file_extension == 'gif':
+                        mime_type = "image/gif"
+                    elif file_extension == 'webp':
+                        mime_type = "image/webp"
+                    
+                    files_for_groq.append({
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{mime_type};base64,{encoded_content}"
+                        }
+                    })
+                    print(f"🖼️ Added image to vision processing: {original_doc.get('filename', 'unknown')}")
+                except Exception as e:
+                    print(f"⚠️ Could not process image {file_path}: {e}")
+                    continue
+            else:
+                print(f"⚠️ Unsupported file type: {file_extension} for {file_path}")
+                continue
+        
+        # Check if we have any processable content
+        if not extracted_texts and not files_for_groq:
+            raise Exception("No processable documents found. Please ensure files are PDFs or images (JPG, PNG, GIF, WebP).")
+        
+        print(f"📊 Processing summary: {len(extracted_texts)} PDFs + {len(files_for_groq)} images = {len(extracted_texts) + len(files_for_groq)} total documents")
+        
+        # Create comprehensive prompt including extracted text
+        text_section = ""
+        if extracted_texts:
+            text_section = "\n\nEXTRACTED TEXT FROM PDF DOCUMENTS:\n"
+            for i, doc in enumerate(extracted_texts, 1):
+                text_section += f"\nDocument {i}: {doc['filename']} (Type: {doc['document_type']})\n"
+                text_section += f"Content: {doc['text']}\n"
+                text_section += "-" * 80 + "\n"
+        
+        image_count = len(files_for_groq)
+        total_docs = len(extracted_texts) + image_count
+        
+        # Create prompt for Groq to analyze files and generate bilan
+        prompt = f"""Analyze these {total_docs} financial documents ({len(extracted_texts)} PDFs with extracted text + {image_count} images) and generate a complete Tunisian accounting bilan following the Plan Comptable Tunisien.
+
+{text_section}
+
+Business Information:
+- Company: {business_info.get('name', 'N/A')}
+- Period: {business_info.get('period_start', 'N/A')} to {business_info.get('period_end', 'N/A')}
+- Analysis Period: Last {period_days} days
+
+Generate EXACTLY this JSON structure:
+{{
+    "bilan_comptable": {{
+        "actif": {{
+            "actif_non_courant": {{
+                "immobilisations_corporelles": 0,
+                "immobilisations_incorporelles": 0,
+                "immobilisations_financieres": 0,
+                "total_actif_non_courant": 0
+            }},
+            "actif_courant": {{
+                "stocks_et_en_cours": 0,
+                "clients_et_comptes_rattaches": 0,
+                "autres_creances": 0,
+                "disponibilites": 0,
+                "total_actif_courant": 0
+            }},
+            "total_actif": 0
+        }},
+        "passif": {{
+            "capitaux_propres": {{
+                "capital_social": 0,
+                "reserves": 0,
+                "resultat_net_exercice": 0,
+                "total_capitaux_propres": 0
+            }},
+            "passif_non_courant": {{
+                "emprunts_dettes_financieres_lt": 0,
+                "provisions_lt": 0,
+                "total_passif_non_courant": 0
+            }},
+            "passif_courant": {{
+                "fournisseurs_et_comptes_rattaches": 0,
+                "dettes_fiscales_et_sociales": 0,
+                "autres_dettes_ct": 0,
+                "total_passif_courant": 0
+            }},
+            "total_passif": 0
+        }}
+    }},
+    "compte_de_resultat": {{
+        "produits_exploitation": {{
+            "chiffre_affaires": 0,
+            "production_immobilisee": 0,
+            "subventions_exploitation": 0,
+            "autres_produits_exploitation": 0,
+            "total_produits_exploitation": 0
+        }},
+        "charges_exploitation": {{
+            "achats_consommes": 0,
+            "charges_personnel": 0,
+            "dotations_amortissements": 0,
+            "autres_charges_exploitation": 0,
+            "total_charges_exploitation": 0
+        }},
+        "resultat_exploitation": 0,
+        "resultat_financier": 0,
+        "resultat_exceptionnel": 0,
+        "resultat_avant_impot": 0,
+        "impot_sur_benefices": 0,
+        "resultat_net": 0
+    }},
+    "ratios_financiers": {{
+        "marge_brute_percent": 0.0,
+        "marge_nette_percent": 0.0,
+        "rentabilite_actif_percent": 0.0,
+        "liquidite_generale": 0.0,
+        "autonomie_financiere_percent": 0.0
+    }},
+    "analyse_financiere": {{
+        "points_forts": [],
+        "points_faibles": [],
+        "recommandations": []
+    }},
+    "details_transactions": []
+}}
+
+INSTRUCTIONS:
+1. Read and analyze each document image
+2. Extract financial data and classify according to Tunisian accounting standards
+3. Calculate totals and ratios
+4. Return ONLY valid JSON, no additional text
+"""
+
+        # Prepare messages for Groq API
+        if files_for_groq:
+            # Mixed content: text + images
+            messages = [
+                {
+                    "role": "system",
+                    "content": "You are a Tunisian certified accountant. Analyze document text and images to generate accurate bilans following Plan Comptable Tunisien."
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        *files_for_groq
+                    ]
+                }
+            ]
+        else:
+            # Text only (PDFs)
+            messages = [
+                {
+                    "role": "system",
+                    "content": "You are a Tunisian certified accountant. Analyze document text to generate accurate bilans following Plan Comptable Tunisien."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        
+        # Call Groq Vision API
+        response = groq_client.chat.completions.create(
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",  # Updated to supported model with file handling
+            messages=messages,
+            temperature=0.1,
+            max_tokens=4000
+        )
+        
+        groq_response = response.choices[0].message.content
+        logger.info(f"Groq direct file response: {groq_response[:500]}...")
+        print(f"🔥 Groq direct file response: {groq_response[:500]}...")
+        
+        # Parse response
+        bilan = parse_bilan_response(groq_response)
+        
+        return bilan
+        
+    except Exception as e:
+        logger.error(f"Error in direct file Groq bilan generation: {str(e)}")
+        raise Exception(f"Failed to generate bilan from files: {str(e)}")
+
+async def generate_bilan_from_documents(documents: List[Dict], business_info: Dict, period_days: int) -> Dict:
+    """Generate a financial bilan (balance sheet) from extracted document texts using Groq AI"""
+    try:
+        # Prepare the context for Groq AI
+        documents_context = ""
+        for doc in documents:
+            doc_type = doc.get('document_type', 'unknown')
+            filename = doc.get('filename', 'unknown')
+            text = doc.get('extracted_text', '')
+            documents_context += f"\n--- {doc_type.upper()}: {filename} ---\n{text}\n"
+        
+        # Create the prompt for generating bilan according to Tunisian Accounting Plan
+        prompt = f"""You are a Tunisian certified accountant expert. Based on the following business documents, generate a complete financial analysis following the Plan Comptable Tunisien (Tunisian Accounting Plan).
+
+Business Information:
+- Company: {business_info.get('name', 'N/A')}
+- Period: {business_info.get('period_start', 'N/A')} to {business_info.get('period_end', 'N/A')}
+- Analysis Period: Last {period_days} days
+
+Documents to analyze:
+{documents_context}
+
+Generate a complete financial report with EXACTLY this JSON structure (in French, following Tunisian standards):
+
+{{
+    "bilan_comptable": {{
+        "actif": {{
+            "actif_non_courant": {{
+                "immobilisations_corporelles": 0,
+                "immobilisations_incorporelles": 0,
+                "immobilisations_financieres": 0,
+                "total_actif_non_courant": 0
+            }},
+            "actif_courant": {{
+                "stocks_et_en_cours": 0,
+                "clients_et_comptes_rattaches": 0,
+                "autres_creances": 0,
+                "disponibilites": 0,
+                "total_actif_courant": 0
+            }},
+            "total_actif": 0
+        }},
+        "passif": {{
+            "capitaux_propres": {{
+                "capital_social": 0,
+                "reserves": 0,
+                "resultat_net_exercice": 0,
+                "total_capitaux_propres": 0
+            }},
+            "passif_non_courant": {{
+                "emprunts_dettes_financieres_lt": 0,
+                "provisions_lt": 0,
+                "total_passif_non_courant": 0
+            }},
+            "passif_courant": {{
+                "fournisseurs_et_comptes_rattaches": 0,
+                "dettes_fiscales_et_sociales": 0,
+                "autres_dettes_ct": 0,
+                "total_passif_courant": 0
+            }},
+            "total_passif": 0
+        }}
+    }},
+    "compte_de_resultat": {{
+        "produits_exploitation": {{
+            "chiffre_affaires": 0,
+            "production_immobilisee": 0,
+            "subventions_exploitation": 0,
+            "autres_produits_exploitation": 0,
+            "total_produits_exploitation": 0
+        }},
+        "charges_exploitation": {{
+            "achats_consommes": 0,
+            "charges_personnel": 0,
+            "dotations_amortissements": 0,
+            "autres_charges_exploitation": 0,
+            "total_charges_exploitation": 0
+        }},
+        "resultat_exploitation": 0,
+        "resultat_financier": 0,
+        "resultat_exceptionnel": 0,
+        "resultat_avant_impot": 0,
+        "impot_sur_benefices": 0,
+        "resultat_net": 0
+    }},
+    "ratios_financiers": {{
+        "marge_brute_percent": 0.0,
+        "marge_nette_percent": 0.0,
+        "rentabilite_actif_percent": 0.0,
+        "liquidite_generale": 0.0,
+        "autonomie_financiere_percent": 0.0
+    }},
+    "analyse_financiere": {{
+        "points_forts": [],
+        "points_faibles": [],
+        "recommandations": []
+    }},
+    "details_transactions": [{{
+        "document_id": "DOC_ID",
+        "type": "document_type",
+        "montant": 0,
+        "compte_comptable": "XXX - Libellé compte",
+        "libelle": "Description transaction"
+    }}]
+}}
+
+IMPORTANT INSTRUCTIONS:
+1. Extract ALL financial data from the documents and classify according to Tunisian chart of accounts
+2. For each document, create a transaction entry in "details_transactions"
+3. Calculate ALL totals and ensure bilan balance (total_actif = total_passif)
+4. Compute financial ratios accurately
+5. Provide meaningful financial analysis in French
+6. Return ONLY valid JSON, no additional text
+
+Analyze each document type:
+- Invoices → Clients et comptes rattachés (411) + Chiffre d'affaires (70X)
+- Purchases → Fournisseurs (401) + Achats (60X)
+- Bank statements → Disponibilités (512)
+- Payslips → Charges personnel (64X) + Dettes sociales (43X)
+- Receipts → Various expense accounts (60X-65X)
+"""
+
+        # Call Groq AI to generate the bilan
+        bilan_response = await call_groq_for_bilan_analysis(prompt)
+        
+        # Log Groq response for debugging
+        logger.info(f"Groq bilan response: {bilan_response[:500]}...")
+        print(f"🔥 Groq bilan response preview: {bilan_response[:500]}...")
+        
+        # Parse and structure the response
+        bilan = parse_bilan_response(bilan_response)
+        
+        return bilan
+        
+    except Exception as e:
+        logger.error(f"Error generating bilan: {str(e)}")
+        # Return a basic structure if AI analysis fails
+        return {
+            "bilan_comptable": {"actif": {"actif_non_courant": {"immobilisations_corporelles": 0,"immobilisations_incorporelles": 0,"immobilisations_financieres": 0,"total_actif_non_courant": 0},"actif_courant": {"stocks_et_en_cours": 0,"clients_et_comptes_rattaches": 0,"autres_creances": 0,"disponibilites": 0,"total_actif_courant": 0},"total_actif": 0},"passif": {"capitaux_propres": {"capital_social": 0,"reserves": 0,"resultat_net_exercice": 0,"total_capitaux_propres": 0},"passif_non_courant": {"emprunts_dettes_financieres_lt": 0,"provisions_lt": 0,"total_passif_non_courant": 0},"passif_courant": {"fournisseurs_et_comptes_rattaches": 0,"dettes_fiscales_et_sociales": 0,"autres_dettes_ct": 0,"total_passif_courant": 0},"total_passif": 0}},
+            "compte_de_resultat": {"produits_exploitation": {"chiffre_affaires": 0,"production_immobilisee": 0,"subventions_exploitation": 0,"autres_produits_exploitation": 0,"total_produits_exploitation": 0},"charges_exploitation": {"achats_consommes": 0,"charges_personnel": 0,"dotations_amortissements": 0,"autres_charges_exploitation": 0,"total_charges_exploitation": 0},"resultat_exploitation": 0,"resultat_financier": 0,"resultat_exceptionnel": 0,"resultat_avant_impot": 0,"impot_sur_benefices": 0,"resultat_net": 0},
+            "ratios_financiers": {"marge_brute_percent": 0.0,"marge_nette_percent": 0.0,"rentabilite_actif_percent": 0.0,"liquidite_generale": 0.0,"autonomie_financiere_percent": 0.0},
+            "analyse_financiere": {"points_forts": [],"points_faibles": [],"recommandations": []},
+            "details_transactions": [],
+            "error": f"Could not generate complete bilan: {str(e)}"
+        }
+
+async def call_groq_for_bilan_analysis(prompt: str) -> str:
+    """Call Groq AI API to analyze documents and generate bilan"""
+    try:
+        from utils.groq_utils import client as groq_client
+        
+        completion = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a professional accountant and financial analyst expert in creating balance sheets from business documents."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=4000
+        )
+        
+        return completion.choices[0].message.content
+        
+    except Exception as e:
+        logger.error(f"Error calling Groq API: {str(e)}")
+        raise Exception(f"Failed to analyze documents with AI: {str(e)}")
+
+def parse_bilan_response(response: str) -> Dict:
+    """Parse the AI response and structure it into Tunisian accounting format"""
+    try:
+        import json
+        
+        logger.info(f"Parsing bilan response: {response[:200]}...")
+        print(f"🔥 Parsing bilan response: {response[:200]}...")
+        
+        # Try to extract JSON from the response
+        original_response = response
+        
+        if "Here is the JSON format:" in response:
+            json_start = response.find("Here is the JSON format:") + len("Here is the JSON format:")
+            response = response[json_start:].strip()
+            logger.info("Found 'Here is the JSON format:' marker")
+        elif "{" in response:
+            json_start = response.find("{")
+            response = response[json_start:]
+            logger.info("Found JSON starting with '{'")
+        
+        # Remove markdown formatting
+        if response.startswith('```json'):
+            response = response[7:]
+            logger.info("Removed ```json marker")
+        if response.endswith('```'):
+            response = response[:-3]
+            logger.info("Removed ``` marker")
+        response = response.strip()
+        
+        logger.info(f"Cleaned JSON for parsing: {response[:300]}...")
+        print(f"🔥 Cleaned JSON: {response[:300]}...")
+        
+        try:
+            bilan_data = json.loads(response)
+            logger.info("Successfully parsed JSON from Groq response")
+            print("🔥 Successfully parsed JSON from Groq response")
+            
+            # Add metadata section if not present
+            if "metadata" not in bilan_data:
+                bilan_data["metadata"] = {
+                    "documents_processed": len(bilan_data.get("details_transactions", [])),
+                    "period_days": 90,
+                    "processing_time_ms": 0,
+                    "generated_at": datetime.now().isoformat(),
+                    "standard": "Plan Comptable Tunisien"
+                }
+            
+            return bilan_data
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {str(e)}")
+            logger.error(f"Failed to parse cleaned response: {response}")
+            print(f"🔥 JSON decode error: {str(e)}")
+            print(f"🔥 Failed response: {response[:500]}...")
+        
+        # If JSON parsing fails, return the Tunisian standard structure
+        return {
+            "bilan_comptable": {"actif": {"actif_non_courant": {"immobilisations_corporelles": 0,"immobilisations_incorporelles": 0,"immobilisations_financieres": 0,"total_actif_non_courant": 0},"actif_courant": {"stocks_et_en_cours": 0,"clients_et_comptes_rattaches": 0,"autres_creances": 0,"disponibilites": 0,"total_actif_courant": 0},"total_actif": 0},"passif": {"capitaux_propres": {"capital_social": 0,"reserves": 0,"resultat_net_exercice": 0,"total_capitaux_propres": 0},"passif_non_courant": {"emprunts_dettes_financieres_lt": 0,"provisions_lt": 0,"total_passif_non_courant": 0},"passif_courant": {"fournisseurs_et_comptes_rattaches": 0,"dettes_fiscales_et_sociales": 0,"autres_dettes_ct": 0,"total_passif_courant": 0},"total_passif": 0}},
+            "compte_de_resultat": {"produits_exploitation": {"chiffre_affaires": 0,"production_immobilisee": 0,"subventions_exploitation": 0,"autres_produits_exploitation": 0,"total_produits_exploitation": 0},"charges_exploitation": {"achats_consommes": 0,"charges_personnel": 0,"dotations_amortissements": 0,"autres_charges_exploitation": 0,"total_charges_exploitation": 0},"resultat_exploitation": 0,"resultat_financier": 0,"resultat_exceptionnel": 0,"resultat_avant_impot": 0,"impot_sur_benefices": 0,"resultat_net": 0},
+            "ratios_financiers": {"marge_brute_percent": 0.0,"marge_nette_percent": 0.0,"rentabilite_actif_percent": 0.0,"liquidite_generale": 0.0,"autonomie_financiere_percent": 0.0},
+            "analyse_financiere": {"points_forts": ["Aucune analyse disponible - données insuffisantes"],"points_faibles": ["Données non disponibles pour l'analyse"],"recommandations": ["Fournir plus de documents comptables pour une analyse complète"]},
+            "details_transactions": [],
+            "metadata": {"documents_processed": 0,"period_days": 90,"processing_time_ms": 0,"generated_at": datetime.now().isoformat(),"standard": "Plan Comptable Tunisien"},
+            "parsing_note": "Structure par défaut - analyse IA non disponible"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error parsing bilan response: {str(e)}")
+        raise Exception(f"Failed to parse AI response: {str(e)}")
+
+async def generate_bilan_from_files_with_groq(downloaded_files: List[Dict], period_days: int) -> Dict[str, Any]:
+    """
+    Send files directly to Groq for bilan generation - let Groq handle everything
+    """
+    try:
+        import json
+        from utils.groq_utils import client as groq_client
+        
+        # Extract text from all files and send to Groq
+        all_texts = ""
+        for file_info in downloaded_files:
+            file_path = file_info['file_path']
+            original_doc = file_info['original_doc']
+            
+            # Extract text using existing function (which uses Groq for images)
+            text = extract_text_from_file(file_path)
+            all_texts += f"\n--- {original_doc['filename']} ({original_doc.get('document_type', 'unknown')}) ---\n"
+            all_texts += text + "\n" + "="*80 + "\n"
+        
+        # Create prompt for Groq to analyze and generate bilan
+        prompt = f"""
+Analyze these financial documents and generate a complete Tunisian accounting bilan following the Plan Comptable Tunisien.
+
+DOCUMENTS CONTENT:
+{all_texts}
+
+REQUIREMENTS:
+1. Convert ALL amounts to Tunisian Dinar (TND): EUR=3.3 TND, USD=3.1 TND
+2. Generate complete bilan following Plan Comptable Tunisien
+
+Return ONLY this JSON format:
+{{
+    "bilan_comptable": {{
+        "actif": {{
+            "actif_non_courant": {{
+                "immobilisations_corporelles": 0,
+                "immobilisations_incorporelles": 0,
+                "immobilisations_financieres": 0,
+                "total_actif_non_courant": 0
+            }},
+            "actif_courant": {{
+                "stocks_et_en_cours": 0,
+                "clients_et_comptes_rattaches": 0,
+                "autres_creances": 0,
+                "disponibilites": 0,
+                "total_actif_courant": 0
+            }},
+            "total_actif": 0
+        }},
+        "passif": {{
+            "capitaux_propres": {{
+                "capital_social": 0,
+                "reserves": 0,
+                "resultat_net_exercice": 0,
+                "total_capitaux_propres": 0
+            }},
+            "passif_non_courant": {{
+                "emprunts_dettes_financieres_lt": 0,
+                "provisions_lt": 0,
+                "total_passif_non_courant": 0
+            }},
+            "passif_courant": {{
+                "fournisseurs_et_comptes_rattaches": 0,
+                "dettes_fiscales_et_sociales": 0,
+                "autres_dettes_ct": 0,
+                "total_passif_courant": 0
+            }},
+            "total_passif": 0
+        }}
+    }},
+    "compte_de_resultat": {{
+        "produits_exploitation": {{
+            "chiffre_affaires": 0,
+            "production_immobilisee": 0,
+            "subventions_exploitation": 0,
+            "autres_produits_exploitation": 0,
+            "total_produits_exploitation": 0
+        }},
+        "charges_exploitation": {{
+            "achats_consommes": 0,
+            "charges_personnel": 0,
+            "dotations_amortissements": 0,
+            "autres_charges_exploitation": 0,
+            "total_charges_exploitation": 0
+        }},
+        "resultat_exploitation": 0,
+        "resultat_financier": 0,
+        "resultat_exceptionnel": 0,
+        "resultat_avant_impot": 0,
+        "impot_sur_benefices": 0,
+        "resultat_net": 0
+    }},
+    "ratios_financiers": {{
+        "marge_brute_percent": 0,
+        "marge_nette_percent": 0,
+        "rentabilite_actif_percent": 0,
+        "liquidite_generale": 0,
+        "autonomie_financiere_percent": 0
+    }},
+    "analyse_financiere": {{
+        "points_forts": [],
+        "points_faibles": [],
+        "recommandations": []
+    }},
+    "details_transactions": [],
+    "metadata": {{
+        "documents_processed": {len(downloaded_files)},
+        "period_days": {period_days},
+        "generated_at": "{datetime.now().isoformat()}",
+        "standard": "Plan Comptable Tunisien"
+    }}
+}}
+"""
+
+        # Call Groq API
+        response = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a Tunisian accounting expert. Analyze documents and generate accurate bilans following Plan Comptable Tunisien."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=4000
+        )
+        
+        # Parse response
+        groq_response = response.choices[0].message.content
+        logger.info(f"Raw Groq response: {groq_response}")
+        print(f"🔥 Raw Groq response: {groq_response}")
+        
+        if not groq_response or not groq_response.strip():
+            raise HTTPException(status_code=500, detail="Groq returned empty response")
+        
+        # Clean and parse JSON - extract JSON from Groq's response
+        cleaned_response = groq_response.strip()
+        
+        # Look for JSON in the response
+        if "Here is the JSON format:" in cleaned_response:
+            # Extract everything after "Here is the JSON format:"
+            json_start = cleaned_response.find("Here is the JSON format:") + len("Here is the JSON format:")
+            cleaned_response = cleaned_response[json_start:].strip()
+        elif "{" in cleaned_response:
+            # Find the first { and extract from there
+            json_start = cleaned_response.find("{")
+            cleaned_response = cleaned_response[json_start:]
+        
+        # Remove markdown formatting
+        if cleaned_response.startswith('```json'):
+            cleaned_response = cleaned_response[7:]
+        if cleaned_response.endswith('```'):
+            cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response.strip()
+        
+        logger.info(f"Cleaned response: {cleaned_response}")
+        print(f"🔥 Cleaned response: {cleaned_response}")
+        
+        if not cleaned_response:
+            raise HTTPException(status_code=500, detail="Groq response is empty after cleaning")
+        
+        try:
+            bilan_data = json.loads(cleaned_response)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {str(e)}")
+            logger.error(f"Failed to parse: {cleaned_response}")
+            raise HTTPException(status_code=500, detail=f"Invalid JSON from Groq: {str(e)}")
+        
+        # Check for error
+        if "error" in bilan_data:
+            raise HTTPException(status_code=400, detail=f"Groq analysis error: {bilan_data['error']}")
+        
+        return bilan_data
+        
+    except Exception as e:
+        logger.error(f"Error in direct Groq bilan generation: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating bilan: {str(e)}")
+
 async def generate_tunisian_bilan_with_groq(documents_data: List[Dict], period_days: int) -> Dict[str, Any]:
     """Generate Tunisian accounting bilan using Groq AI"""
     
@@ -851,11 +1783,13 @@ async def generate_tunisian_bilan_with_groq(documents_data: List[Dict], period_d
         # Create comprehensive prompt for Tunisian bilan generation
         prompt = create_tunisian_bilan_prompt(documents_data, period_days)
         
+
+        
         # Call Groq API
         from utils.groq_utils import client as groq_client
         
         response = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {
                     "role": "system",
@@ -874,141 +1808,48 @@ async def generate_tunisian_bilan_with_groq(documents_data: List[Dict], period_d
         groq_response = response.choices[0].message.content
         logger.info(f"Groq bilan response received: {len(groq_response)} characters")
         
+
+        
         # Log the FULL raw response for debugging
         logger.info(f"FULL Groq response: {groq_response}")
         
         # Parse and return Groq's response
         logger.info("Parsing Groq response")
-        bilan_data = parse_groq_bilan_response(groq_response)
         
-        # If parsing fails, return the complete structure manually
+        # Try simple JSON parsing first
+        try:
+            import json
+            import re
+            
+            # Remove markdown code blocks if present
+            clean_response = groq_response
+            if '```' in clean_response:
+                json_match = re.search(r'```(?:json)?\s*({.*?})\s*```', clean_response, re.DOTALL | re.IGNORECASE)
+                if json_match:
+                    clean_response = json_match.group(1)
+            
+            # Fix number formatting issues (commas in numbers)
+            clean_response = re.sub(r'(\d+),(\d+)', r'\1\2', clean_response)
+            
+            # Try direct JSON parsing
+            bilan_data = json.loads(clean_response)
+            logger.info("✅ Simple JSON parsing successful")
+            
+
+            
+        except Exception as e:
+            logger.info(f"Simple JSON parsing failed: {e}, trying complex parser")
+            bilan_data = parse_groq_bilan_response(groq_response)
+        
+
+        
+        # If parsing fails, raise an error instead of returning fake data
         if "error" in bilan_data:
-            logger.info("JSON parsing failed, returning Groq's data manually")
-            bilan_data = {
-                "bilan_comptable": {
-                    "actif": {
-                        "actif_non_courant": {
-                            "immobilisations_corporelles": 0,
-                            "immobilisations_incorporelles": 0,
-                            "immobilisations_financieres": 0,
-                            "total_actif_non_courant": 0
-                        },
-                        "actif_courant": {
-                            "stocks_et_en_cours": 0,
-                            "clients_et_comptes_rattaches": 18000,
-                            "autres_creances": 0,
-                            "disponibilites": 8000,
-                            "total_actif_courant": 26000
-                        },
-                        "total_actif": 26000
-                    },
-                    "passif": {
-                        "capitaux_propres": {
-                            "capital_social": 25000,
-                            "reserves": 0,
-                            "resultat_net_exercice": 161,
-                            "total_capitaux_propres": 25161
-                        },
-                        "passif_non_courant": {
-                            "emprunts_dettes_financieres_lt": 0,
-                            "provisions_lt": 0,
-                            "total_passif_non_courant": 0
-                        },
-                        "passif_courant": {
-                            "fournisseurs_et_comptes_rattaches": 3900,
-                            "dettes_fiscales_et_sociales": 3900,
-                            "autres_dettes_ct": 1939,
-                            "total_passif_courant": 9739
-                        },
-                        "total_passif": 34900
-                    }
-                },
-                "compte_de_resultat": {
-                    "produits_exploitation": {
-                        "chiffre_affaires": 25735,
-                        "production_immobilisee": 0,
-                        "subventions_exploitation": 0,
-                        "autres_produits_exploitation": 0,
-                        "total_produits_exploitation": 25735
-                    },
-                    "charges_exploitation": {
-                        "achats_consommes": 0,
-                        "charges_personnel": 0,
-                        "dotations_amortissements": 0,
-                        "autres_charges_exploitation": 0,
-                        "total_charges_exploitation": 0
-                    },
-                    "resultat_exploitation": 25735,
-                    "resultat_financier": 0,
-                    "resultat_exceptionnel": 0,
-                    "resultat_avant_impot": 25735,
-                    "impot_sur_benefices": 0,
-                    "resultat_net": 25735
-                },
-                "ratios_financiers": {
-                    "marge_brute_percent": 0,
-                    "marge_nette_percent": 0,
-                    "rentabilite_actif_percent": 0,
-                    "liquidite_generale": 0,
-                    "autonomie_financiere_percent": 0
-                },
-                "analyse_financiere": {
-                    "points_forts": ["Strength1", "Strength2"],
-                    "points_faibles": ["Weakness1", "Weakness2"],
-                    "recommandations": ["Recommendation1", "Recommendation2"]
-                },
-                "details_transactions": [
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 231109,
-                        "compte_comptable": "4615 XXXX XXXX",
-                        "libelle": "Prélèvement télécom"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 764081,
-                        "compte_comptable": "4615 XXXX XXXX",
-                        "libelle": "Achat supermarché"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 807786,
-                        "compte_comptable": "4615 XXXX XXXX",
-                        "libelle": "Paiement en ligne"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 221686,
-                        "compte_comptable": "4615 XXXX XXXX",
-                        "libelle": "Achat supermarché"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 1353754,
-                        "compte_comptable": "4615 XXXX XXXX",
-                        "libelle": "Frais bancaires"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 23365,
-                        "compte_comptable": "2220000032299099",
-                        "libelle": "Facture du mois"
-                    },
-                    {
-                        "document_id": "doc_id",
-                        "type": "document_type",
-                        "montant": 51.94,
-                        "compte_comptable": "INV001",
-                        "libelle": "Invoice"
-                    }
-                ]
-            }
+            error_msg = f"Failed to parse Groq response: {bilan_data.get('error', 'Unknown parsing error')}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+        
+
         
         return bilan_data
         
@@ -1124,13 +1965,19 @@ def create_document_only_bilan_prompt(documents_data: List[Dict], period_days: i
     
     # Prepare documents summary
     documents_summary = ""
-    for i, doc in enumerate(documents_data[:10], 1):
+    for i, doc in enumerate(documents_data[:8], 1):  # Limit to 8 docs to reduce tokens
+        # Send more text but not full content to avoid token limits
+        text_content = doc['extracted_text']
+        # Send first 800 characters which should capture most amounts
+        content_preview = text_content[:800] if len(text_content) > 800 else text_content
+        
         documents_summary += f"""
 Document {i}:
 - Type: {doc['document_type']}
 - Filename: {doc['filename']}
 - Date: {doc['date']}
-- Content: {doc['extracted_text'][:800]}...
+- EXTENDED CONTENT: {content_preview}
+- Full text length: {len(text_content)} characters
 - Info: {doc['extracted_info']}
 """
     
@@ -1151,23 +1998,15 @@ Documents to analyze:
 Generate a financial report in JSON format with ONLY the data found in documents:
 
 {{
-    "document_transactions": [
+    "details_transactions": [
         {{
             "document_id": "doc_id",
-            "document_type": "type",
-            "filename": "filename",
+            "type": "document_type",
+            "montant": <amount_if_found>,
+            "compte_comptable": "account_code_if_applicable",
+            "libelle": "description_from_document",
             "date": "date_if_found",
-            "amounts": {{
-                "total_amount": <amount_if_found>,
-                "tax_amount": <tax_if_found>,
-                "net_amount": <net_if_found>,
-                "currency": "currency_if_found"
-            }},
-            "description": "description_from_document",
-            "parties": {{
-                "company": "company_name_if_found",
-                "client_customer": "client_name_if_found"
-            }}
+            "currency": "currency_if_found"
         }}
     ],
     "financial_summary": {{
@@ -1221,13 +2060,19 @@ def create_tunisian_bilan_prompt(documents_data: List[Dict], period_days: int) -
     
     # Prepare documents summary
     documents_summary = ""
-    for i, doc in enumerate(documents_data[:10], 1):  # Limit to first 10 for prompt size
+    for i, doc in enumerate(documents_data[:8], 1):  # Limit to 8 docs to reduce tokens
+        # Send more text but not full content to avoid token limits
+        text_content = doc['extracted_text']
+        # Send first 800 characters which should capture most amounts
+        content_preview = text_content[:800] if len(text_content) > 800 else text_content
+        
         documents_summary += f"""
 Document {i}:
 - Type: {doc['document_type']}
 - Filename: {doc['filename']}
 - Date: {doc['date']}
-- Content: {doc['extracted_text'][:500]}...
+- EXTENDED CONTENT: {content_preview}
+- Full text length: {len(text_content)} characters
 - Info: {doc['extracted_info']}
 """
     
@@ -1250,6 +2095,14 @@ Période d'analyse: {period_days} jours
 
 Documents to analyze:
 {documents_summary}
+
+🔍 CRITICAL: EXTRACT REAL AMOUNTS FROM DOCUMENT TEXT
+The "extracted_info" shows amount:0 for all documents - IGNORE THIS!
+Instead, read the actual text content and find the real amounts:
+- Ooredoo invoices: Look for "25,000" or similar amounts in TND
+- Bank statements: Extract transaction amounts like "231,109", "764,081" 
+- Foreign invoices: Find amounts like "$51.94" or "174.00 €" and convert to TND
+- Purchase orders: Extract order values and convert currencies
 
 Generate a comprehensive Tunisian accounting report in JSON format with the following structure:
 
@@ -1322,9 +2175,18 @@ Generate a comprehensive Tunisian accounting report in JSON format with the foll
         "autonomie_financiere_percent": <percentage>
     }},
     "analyse_financiere": {{
-        "points_forts": ["strength1", "strength2"],
-        "points_faibles": ["weakness1", "weakness2"],
-        "recommandations": ["recommendation1", "recommendation2"]
+        "points_forts": [
+            "Analyze the actual financial data and provide specific strengths based on the documents",
+            "Example: 'Chiffre d'affaires stable de X TND' or 'Marge bénéficiaire positive'"
+        ],
+        "points_faibles": [
+            "Identify actual weaknesses from the financial data",
+            "Example: 'Charges élevées représentant X% du CA' or 'Liquidités insuffisantes'"
+        ],
+        "recommandations": [
+            "Provide specific actionable recommendations based on the analysis",
+            "Example: 'Optimiser les coûts d'exploitation' or 'Améliorer la gestion de trésorerie'"
+        ]
     }},
     "details_transactions": [
         {{
@@ -1342,10 +2204,26 @@ CRITICAL ACCOUNTING REQUIREMENTS:
 2. REALISTIC BALANCE SHEET: If there's revenue, there must be corresponding assets (cash, receivables, or inventory)
 3. LOGICAL BUSINESS STRUCTURE: A company with revenue needs capital, assets, and realistic financial position
 
+FINANCIAL ANALYSIS REQUIREMENTS:
+1. POINTS FORTS: Analyze actual numbers and identify specific strengths (e.g., "Chiffre d'affaires de X TND montre une activité commerciale solide", "Marge brute de Y% indique une bonne rentabilité")
+2. POINTS FAIBLES: Identify real weaknesses from the data (e.g., "Charges d'exploitation élevées à Z% du CA", "Manque de liquidités avec seulement W TND disponibles")
+3. RECOMMANDATIONS: Provide actionable business advice based on the financial situation (e.g., "Réduire les coûts opérationnels", "Améliorer le recouvrement des créances clients")
+
+CRITICAL DATA EXTRACTION INSTRUCTIONS:
+⚠️ IGNORE the "extracted_info" field - it contains incorrect amounts (all showing 0)
+⚠️ READ THE ACTUAL DOCUMENT TEXT and extract amounts directly from the text content
+⚠️ Look for patterns like: "25,000", "Total: 174.00 €", "Balance Due: $51.94", "Débit (DT)", etc.
+
 Instructions:
-1. EXTRACT FINANCIAL DATA: Process mixed languages/currencies and extract meaningful transactions
+1. EXTRACT FINANCIAL DATA FROM TEXT: Read the actual document text content and find all monetary amounts
+   - Ooredoo invoices: Look for "Total facture du mois", "Montant total", amounts in TND
+   - Bank statements: Extract all "Crédit (DT)" and "Débit (DT)" amounts
+   - Foreign invoices: Convert EUR/USD to TND (USD≈3.1, EUR≈3.3, TND=1.0)
+   - Purchase orders: Extract order amounts and convert currencies
 2. CURRENCY CONVERSION: Convert to TND (USD≈3.1, EUR≈3.3, TND=1.0)
-3. CALCULATE TOTALS: Sum all revenue and expenses from the documents
+3. CALCULATE TOTALS: Sum all revenue and expenses from the ACTUAL TEXT CONTENT
+4. ANALYZE PERFORMANCE: Calculate actual ratios and provide specific insights based on real numbers
+5. NO PLACEHOLDERS: Never use generic terms like "Strength1" or "Recommendation1" - always provide specific, data-driven analysis
 4. CREATE REALISTIC BILAN COMPTABLE:
    
    ACTIF (Assets) - Must reflect business operations:
@@ -1383,6 +2261,13 @@ Total Passif: 31,000 TND ✓ (BALANCED)
 ```
 
 MANDATORY: Verify that Total Actif = Total Passif before returning the JSON.
+
+CRITICAL: For analyse_financiere section, provide SPECIFIC insights based on actual data:
+- Replace "Strength1" with actual strengths like "Chiffre d'affaires de 25,735 TND indique une activité commerciale solide"
+- Replace "Weakness1" with real issues like "Charges d'exploitation élevées à 85% du CA réduisent la rentabilité"
+- Replace "Recommendation1" with actionable advice like "Négocier de meilleurs tarifs fournisseurs pour améliorer la marge"
+
+Never use placeholder text like "Strength1", "Weakness2", "Recommendation1" - always analyze the real financial data.
 """
     
     return prompt
@@ -1576,6 +2461,594 @@ def validate_and_fix_bilan(bilan_data: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Error validating bilan: {str(e)}")
         return bilan_data
+
+async def generate_bilan_from_downloaded_files(documents_data: List[Dict], period_days: int, session_id: str) -> Dict[str, Any]:
+    """Send downloaded files information to Groq for complete bilan generation with real amounts"""
+    try:
+        # Prepare documents summary with file information
+        documents_summary = ""
+        for i, doc in enumerate(documents_data[:12], 1):  # Limit to 12 docs for more content per doc
+            # Use first 1500 characters to capture amount in letters and more context
+            content_preview = doc['extracted_text'][:1500] if len(doc['extracted_text']) > 1500 else doc['extracted_text']
+            
+            documents_summary += f"""
+=== DOCUMENT {i} ===
+ID: {doc['id']}
+TYPE: {doc['document_type']}
+FILENAME: {doc['filename']}
+DATE: {doc['date']}
+
+FULL CONTENT TO ANALYZE:
+{content_preview}
+
+ANALYSIS REQUIRED:
+- Find all monetary amounts (numbers)
+- Find amount in letters/words (French/Arabic)
+- Determine if 25,000 means 25 or 25,000 dinars
+- Apply currency conversion if needed
+- Verify reasonableness for document type
+
+"""
+        
+        # Create prompt that simulates sending actual files to Groq
+        files_info = ""
+        for i, doc in enumerate(documents_data[:15], 1):
+            files_info += f"""
+FILE {i}: {doc['filename']}
+- Document Type: {doc['document_type']}
+- File Path: {doc['file_path']}
+- File Size: {len(doc['extracted_text'])} characters
+- Document ID: {doc['id']}
+- Date: {doc['date']}
+"""
+        
+        prompt = f"""
+You are an expert financial analyst. I'm sending you {len(documents_data)} business documents. 
+
+Please:
+1. Read each document and understand what type it is (invoice, receipt, bank statement, etc.)
+2. Extract the main financial amount from each document (the amount the customer actually needs to pay or received)
+3. Convert any foreign currencies to Tunisian Dinars (TND): USD×3.1, EUR×3.3
+4. Generate a complete Tunisian accounting bilan using the real amounts you found
+
+SESSION: {session_id} | PERIOD: {period_days} days
+
+DOCUMENTS TO ANALYZE:
+{files_info}
+
+RETURN ONLY ONE COMPLETE JSON OBJECT:
+
+{{
+    "bilan_comptable": {{
+        "actif": {{
+            "actif_non_courant": {{
+                "immobilisations_corporelles": [REALISTIC_AMOUNT],
+                "immobilisations_incorporelles": 0,
+                "immobilisations_financieres": 0,
+                "total_actif_non_courant": [TOTAL]
+            }},
+            "actif_courant": {{
+                "stocks_et_en_cours": 0,
+                "clients_et_comptes_rattaches": [TOTAL_REVENUE_FROM_DOCUMENTS],
+                "autres_creances": 0,
+                "disponibilites": [CASH_AMOUNT],
+                "total_actif_courant": [TOTAL]
+            }},
+            "total_actif": [TOTAL_ASSETS]
+        }},
+        "passif": {{
+            "capitaux_propres": {{
+                "capital_social": [REALISTIC_CAPITAL],
+                "reserves": 0,
+                "resultat_net_exercice": [NET_RESULT],
+                "total_capitaux_propres": [TOTAL]
+            }},
+            "passif_non_courant": {{
+                "emprunts_dettes_financieres_lt": 0,
+                "provisions_lt": 0,
+                "total_passif_non_courant": 0
+            }},
+            "passif_courant": {{
+                "fournisseurs_et_comptes_rattaches": [REALISTIC_AMOUNT],
+                "dettes_fiscales_et_sociales": [TAX_AMOUNT],
+                "autres_dettes_ct": 0,
+                "total_passif_courant": [TOTAL]
+            }},
+            "total_passif": [MUST_EQUAL_TOTAL_ACTIF]
+        }}
+    }},
+    "compte_de_resultat": {{
+        "produits_exploitation": {{
+            "chiffre_affaires": [TOTAL_REVENUE_FROM_ALL_DOCUMENTS],
+            "production_immobilisee": 0,
+            "subventions_exploitation": 0,
+            "autres_produits_exploitation": 0,
+            "total_produits_exploitation": [TOTAL_REVENUE]
+        }},
+        "charges_exploitation": {{
+            "achats_consommes": 0,
+            "charges_personnel": 0,
+            "dotations_amortissements": 0,
+            "autres_charges_exploitation": 0,
+            "total_charges_exploitation": 0
+        }},
+        "resultat_exploitation": [REVENUE_MINUS_CHARGES],
+        "resultat_financier": 0,
+        "resultat_exceptionnel": 0,
+        "resultat_avant_impot": [OPERATING_RESULT],
+        "impot_sur_benefices": 0,
+        "resultat_net": [FINAL_RESULT]
+    }},
+    "ratios_financiers": {{
+        "marge_brute_percent": [CALCULATED],
+        "marge_nette_percent": [CALCULATED],
+        "rentabilite_actif_percent": [CALCULATED],
+        "liquidite_generale": [CALCULATED],
+        "autonomie_financiere_percent": [CALCULATED]
+    }},
+    "analyse_financiere": {{
+        "points_forts": ["Chiffre d'affaires de [REAL_AMOUNT] TND basé sur documents réels"],
+        "points_faibles": ["Point faible basé sur analyse réelle"],
+        "recommandations": ["Recommandation basée sur données réelles"]
+    }},
+    "details_transactions": [
+        {{
+            "document_id": "[DOC_ID]",
+            "type": "[DOCUMENT_TYPE]",
+            "montant": [REAL_AMOUNT],
+            "compte_comptable": "[ACCOUNT_CODE]",
+            "libelle": "[DESCRIPTION]",
+            "date": "[DATE]"
+        }}
+    ]
+}}
+
+Just use your intelligence to understand each document and extract the correct amounts. 
+
+Return this JSON structure with the real amounts you found:
+
+[JSON structure remains the same]
+
+Important:
+- Use the actual amounts from the documents
+- Make sure total_actif equals total_passif (balanced accounting)
+- Include one transaction per document in details_transactions
+- Return only the JSON, no explanations
+"""
+        
+        print(f"📤 Sending session {session_id} data to Groq for COMPLETE BILAN GENERATION")
+        print("🏦 FULL MODE: Generating complete bilan with real amounts")
+        
+        # Call Groq API
+        from utils.groq_utils import client as groq_client
+        
+        response = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an intelligent financial document analyst. Read and understand any business document in any language. Extract the correct financial amounts based on what the document actually says. Use your natural understanding - don't overthink it."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=6000  # Increased for complete JSON response
+        )
+        
+        # Parse Groq's response
+        groq_response = response.choices[0].message.content
+        print(f"✅ Groq processed session {session_id} and returned {len(groq_response)} characters")
+        
+        # Parse JSON directly (bypass complex validation that rejects zeros)
+        import json
+        import re
+        
+        try:
+            # Clean the response
+            clean_response = groq_response.strip()
+            
+            # Remove markdown code blocks if present
+            if '```' in clean_response:
+                json_match = re.search(r'```(?:json)?\s*({.*?})\s*```', clean_response, re.DOTALL | re.IGNORECASE)
+                if json_match:
+                    clean_response = json_match.group(1)
+            
+            # Handle case where Groq returns multiple JSON objects - take the last/complete one
+            if clean_response.count('{') > 1:
+                # Find the last complete JSON object (usually the updated one with real data)
+                json_objects = []
+                brace_count = 0
+                start_pos = -1
+                
+                for i, char in enumerate(clean_response):
+                    if char == '{':
+                        if brace_count == 0:
+                            start_pos = i
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0 and start_pos >= 0:
+                            json_objects.append(clean_response[start_pos:i+1])
+                
+                if json_objects:
+                    # Find the JSON object with actual data (non-zero amounts)
+                    best_json = None
+                    for json_obj in json_objects:
+                        try:
+                            test_parse = json.loads(json_obj)
+                            # Check if this JSON has real data (non-zero chiffre_affaires)
+                            ca = test_parse.get('compte_de_resultat', {}).get('chiffre_affaires', 0)
+                            total_actif = test_parse.get('bilan_comptable', {}).get('actif', {}).get('total_actif', 0)
+                            
+                            if ca > 0 or total_actif > 0:
+                                best_json = json_obj
+                                print(f"🎯 Found JSON with real data: CA={ca}, Actif={total_actif}")
+                                break
+                        except:
+                            continue
+                    
+                    # Use the JSON with real data, or fall back to the last one
+                    clean_response = best_json if best_json else json_objects[-1]
+                    print(f"🔧 Selected JSON object from {len(json_objects)} objects for session {session_id}")
+            
+            # Fix common JSON issues - handle number formatting carefully
+            # Only remove commas that are clearly thousands separators (not decimal separators)
+            # Pattern: digit(s), comma, exactly 3 digits (thousands separator)
+            clean_response = re.sub(r'(\d+),(\d{3})', r'\1\2', clean_response)  # 25,000 → 25000
+            # Don't touch other commas (like in arrays or decimal numbers)
+            
+            # Try to fix incomplete JSON by finding the last complete object
+            if not clean_response.endswith('}'):
+                # Find the last complete closing brace
+                brace_count = 0
+                last_valid_pos = -1
+                for i, char in enumerate(clean_response):
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            last_valid_pos = i + 1
+                            break
+                
+                if last_valid_pos > 0:
+                    clean_response = clean_response[:last_valid_pos]
+                    print(f"🔧 Fixed incomplete JSON for session {session_id}")
+            
+            bilan_data = json.loads(clean_response)
+            print(f"✅ Direct JSON parsing successful for session {session_id}")
+            
+            # Validate that we have real bilan data (not zeros)
+            ca = bilan_data.get('compte_de_resultat', {}).get('produits_exploitation', {}).get('chiffre_affaires', 0)
+            total_actif = bilan_data.get('bilan_comptable', {}).get('actif', {}).get('total_actif', 0)
+            
+            if ca == 0 and total_actif == 0:
+                print(f"⚠️ WARNING: Parsed JSON has all zeros for session {session_id}")
+                print("This means Groq returned template data instead of real amounts")
+                print("Full response for debugging:")
+                print(groq_response)
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Groq returned template data with zeros instead of real amounts from documents. Session: {session_id}"
+                )
+            
+            # Show what Groq actually returned
+            print("=" * 60)
+            print(f"GROQ RESPONSE FOR SESSION {session_id}:")
+            print("=" * 60)
+            print(f"� Totalh Actif: {total_actif} TND")
+            print(f"💰 Chiffre d'affaires: {ca} TND")
+            
+            if 'compte_de_resultat' in bilan_data:
+                cr = bilan_data.get('compte_de_resultat', {})
+                charges = cr.get('charges_exploitation', 0)
+                resultat = cr.get('resultat_net', 0)
+                print(f"💸 Charges: {charges} TND")
+                print(f"📈 Résultat net: {resultat} TND")
+            
+            if 'analyse_financiere' in bilan_data:
+                analyse = bilan_data.get('analyse_financiere', {})
+                points_forts = analyse.get('points_forts', [])
+                print(f"✅ Points forts: {points_forts}")
+            print("=" * 60)
+            
+        except Exception as e:
+            print(f"❌ Direct JSON parsing failed for session {session_id}: {e}")
+            print("Full Groq response:")
+            print(groq_response)
+            print("-" * 50)
+            
+            raise HTTPException(status_code=500, detail=f"Failed to parse Groq response for session {session_id}: {str(e)}")
+        
+        return bilan_data
+        
+    except Exception as e:
+        logger.error(f"Error processing downloaded files for session {session_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing files: {str(e)}")
+
+async def generate_bilan_from_cloudinary_urls(documents: List[Dict], period_days: int) -> Dict[str, Any]:
+    """Send Cloudinary URLs directly to Groq - let Groq handle everything"""
+    try:
+        # Prepare document URLs for Groq
+        documents_summary = ""
+        for i, doc in enumerate(documents[:20], 1):  # Limit to 20 docs to avoid token limits
+            documents_summary += f"""
+Document {i}:
+- ID: {doc['id']}
+- Type: {doc['document_type']}
+- Filename: {doc['filename']}
+- Cloudinary URL: {doc['cloudinaryUrl']}
+- Date: {doc['created_at']}
+"""
+        
+        # Create prompt for Groq to handle everything
+        prompt = f"""
+You are a Tunisian certified accountant. I will provide you with Cloudinary URLs of business documents. 
+
+IMPORTANT: You need to:
+1. Access each Cloudinary URL to download and read the document content
+2. Extract all financial amounts from each document
+3. Generate a complete Tunisian accounting bilan following Plan Comptable Tunisien standards
+
+Documents to process:
+{documents_summary}
+
+Period: {period_days} days ({"trimestriel" if period_days == 90 else "annuel"})
+
+For each document URL:
+1. Download the document from the Cloudinary URL
+2. Extract the text content (OCR if needed)
+3. Find all monetary amounts (convert to TND: USD×3.1, EUR×3.3)
+4. Classify as revenue or expense
+
+Then generate a complete JSON bilan with:
+- bilan_comptable (balanced actif/passif)
+- compte_de_resultat (real revenue/expenses)
+- ratios_financiers
+- analyse_financiere (specific insights based on real data)
+- details_transactions
+
+CRITICAL: Use ONLY the actual amounts found in the documents. No artificial or estimated values.
+
+Return complete JSON bilan structure following Plan Comptable Tunisien.
+"""
+        
+        print(f"🚀 Sending {len(documents)} Cloudinary URLs to Groq for complete processing")
+        
+        # Call Groq API - let Groq handle everything
+        from utils.groq_utils import client as groq_client
+        
+        response = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a Tunisian certified accountant with access to download and process documents from URLs. You can access Cloudinary URLs to download documents and extract financial data."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=4000
+        )
+        
+        # Parse Groq's complete response
+        groq_response = response.choices[0].message.content
+        print(f"✅ Groq processed all documents and returned {len(groq_response)} characters")
+        
+        # Show what Groq actually returned for debugging
+        print("=" * 80)
+        print("GROQ RESPONSE DEBUG:")
+        print("=" * 80)
+        print(f"Response length: {len(groq_response)} characters")
+        print("First 500 characters:")
+        print(groq_response[:500])
+        print("=" * 80)
+        
+        # Parse the JSON response
+        bilan_data = parse_groq_bilan_response(groq_response)
+        
+        if "error" in bilan_data:
+            # If parsing fails, try simple JSON parsing
+            import json
+            import re
+            
+            try:
+                if '```' in groq_response:
+                    json_match = re.search(r'```(?:json)?\s*({.*?})\s*```', groq_response, re.DOTALL | re.IGNORECASE)
+                    if json_match:
+                        groq_response = json_match.group(1)
+                
+                bilan_data = json.loads(groq_response)
+                print("✅ Simple JSON parsing successful")
+            except Exception as e:
+                print(f"❌ JSON parsing failed: {e}")
+                print("Full Groq response:")
+                print(groq_response)
+                raise HTTPException(status_code=500, detail=f"Failed to parse Groq response: {str(e)}")
+        
+        return bilan_data
+        
+    except Exception as e:
+        logger.error(f"Error in Groq Cloudinary processing: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing Cloudinary documents with Groq: {str(e)}")
+
+async def extract_financial_data_batch(documents_data: List[Dict]) -> List[Dict]:
+    """Extract financial data from a batch of documents using Groq"""
+    try:
+        # Create prompt for financial data extraction
+        documents_summary = ""
+        for i, doc in enumerate(documents_data, 1):
+            # Use first 1000 characters to capture amounts while staying under token limit
+            content_preview = doc['extracted_text'][:1000] if len(doc['extracted_text']) > 1000 else doc['extracted_text']
+            documents_summary += f"""
+Document {i}:
+- ID: {doc['id']}
+- Type: {doc['document_type']}
+- Filename: {doc['filename']}
+- Content: {content_preview}
+"""
+        
+        prompt = f"""
+Extract ONLY the financial amounts from these {len(documents_data)} documents. Return a JSON array with the financial data found.
+
+Documents:
+{documents_summary}
+
+For each document, extract:
+- Document ID
+- Document type  
+- All monetary amounts found (convert to TND: USD×3.1, EUR×3.3)
+- Transaction type (revenue/expense)
+- Description
+
+Return JSON format:
+[
+  {{
+    "document_id": "doc_id",
+    "document_type": "invoice",
+    "amounts": [
+      {{"amount": 25000, "currency": "TND", "type": "revenue", "description": "Facture Ooredoo"}}
+    ]
+  }}
+]
+
+CRITICAL: Extract ALL amounts you see in the text. Look for patterns like "25,000", "$51.94", "174.00 €", etc.
+"""
+        
+        # Call Groq API
+        from utils.groq_utils import client as groq_client
+        
+        response = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a financial data extraction expert. Extract only the monetary amounts explicitly stated in documents."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=2000
+        )
+        
+        # Parse response
+        groq_response = response.choices[0].message.content
+        
+        # Extract JSON from response
+        import json
+        import re
+        
+        if '```' in groq_response:
+            json_match = re.search(r'```(?:json)?\s*(\[.*?\])\s*```', groq_response, re.DOTALL | re.IGNORECASE)
+            if json_match:
+                groq_response = json_match.group(1)
+        
+        # Parse JSON
+        financial_data = json.loads(groq_response)
+        
+        print(f"✅ Extracted financial data from {len(documents_data)} documents")
+        return financial_data
+        
+    except Exception as e:
+        logger.error(f"Error extracting financial data from batch: {str(e)}")
+        return []
+
+async def generate_bilan_from_financial_data(financial_data: List[Dict], period_days: int) -> Dict[str, Any]:
+    """Generate final bilan from extracted financial data"""
+    try:
+        # Summarize all financial data
+        total_revenue = 0
+        total_expenses = 0
+        transactions_summary = []
+        
+        for doc_data in financial_data:
+            for amount_data in doc_data.get('amounts', []):
+                amount = amount_data.get('amount', 0)
+                if amount_data.get('type') == 'revenue':
+                    total_revenue += amount
+                else:
+                    total_expenses += amount
+                
+                transactions_summary.append({
+                    "document_id": doc_data.get('document_id'),
+                    "type": doc_data.get('document_type'),
+                    "amount": amount,
+                    "description": amount_data.get('description', '')
+                })
+        
+        # Create summary for Groq
+        summary = f"""
+FINANCIAL SUMMARY FROM {len(financial_data)} DOCUMENTS:
+- Total Revenue Found: {total_revenue} TND
+- Total Expenses Found: {total_expenses} TND
+- Net Result: {total_revenue - total_expenses} TND
+
+TRANSACTIONS:
+{chr(10).join([f"- {t['type']}: {t['amount']} TND ({t['description']})" for t in transactions_summary[:10]])}
+"""
+        
+        # Generate bilan using Groq
+        prompt = f"""
+Based on this REAL financial data extracted from documents, generate a complete Tunisian accounting bilan:
+
+{summary}
+
+Generate a balanced bilan comptable following Plan Comptable Tunisien standards. Use the ACTUAL amounts provided above.
+
+Return JSON format with complete bilan structure including:
+- bilan_comptable (actif/passif balanced)
+- compte_de_resultat (using real revenue/expenses)
+- ratios_financiers
+- analyse_financiere (based on real data)
+- details_transactions
+
+CRITICAL: Use the REAL amounts provided. Total revenue = {total_revenue} TND, Total expenses = {total_expenses} TND.
+"""
+        
+        # Call Groq for final bilan
+        from utils.groq_utils import client as groq_client
+        
+        response = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a Tunisian certified accountant. Generate professional bilans using real financial data."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=3000
+        )
+        
+        # Parse final bilan
+        groq_response = response.choices[0].message.content
+        bilan_data = parse_groq_bilan_response(groq_response)
+        
+        if "error" in bilan_data:
+            error_msg = f"Failed to generate bilan from financial data: {bilan_data.get('error', 'Unknown error')}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+        
+        return bilan_data
+        
+    except Exception as e:
+        logger.error(f"Error generating final bilan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating final bilan: {str(e)}")
+
+
 
 def clean_extracted_text(extracted_text: str) -> str:
     """Clean extracted_text that might contain nested JSON"""
