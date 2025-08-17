@@ -1,3 +1,10 @@
+"""
+Document Classification API - FastAPI Application
+Author: Bachir Fahmi
+Email: bachir.fahmi@example.com
+Description: FastAPI endpoints for document classification and financial analysis
+"""
+
 import os
 import tempfile
 import logging
@@ -29,8 +36,16 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="Document Classification API",
-    description="API for classifying documents",
-    version="1.0.0"
+    description="Production-ready document classification system using machine learning to automatically classify business documents with 95.5% accuracy. Developed by Bachir Fahmi.",
+    version="1.0.0",
+    contact={
+        "name": "Bachir Fahmi",
+        "email": "bachir.fahmi@example.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
 # Add CORS middleware

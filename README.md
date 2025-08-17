@@ -418,6 +418,16 @@ curl -X POST "http://localhost:8000/classify" -F "file=@test.pdf"
 
 ---
 
+## �‍💻 Author
+
+**Bachir Fahmi**  
+📧 Email: [bachirfahmi5@gmail.com](mailto:bachir.fahmi@example.com)  
+🔗 GitHub: [@bachirfahmi](https://github.com/bechir-fahmi)
+
+_Developed with passion for AI-powered document processing and financial analysis_
+
+---
+
 ## 📞 Support & Contributing
 
 ### Getting Help
@@ -426,6 +436,7 @@ curl -X POST "http://localhost:8000/classify" -F "file=@test.pdf"
 - Ensure all environment variables are set correctly
 - Verify model files are present in `data/models/`
 - Test with the `/health` endpoint first
+- Contact the author for technical support
 
 ### Contributing
 
@@ -433,6 +444,7 @@ curl -X POST "http://localhost:8000/classify" -F "file=@test.pdf"
 2. Create a feature branch
 3. Add tests for new functionality
 4. Submit a pull request
+5. Follow the existing code style and documentation standards
 
 ### Performance Monitoring
 
@@ -442,6 +454,17 @@ curl -X POST "http://localhost:8000/classify" -F "file=@test.pdf"
 
 ---
 
+## � Ackenowledgments
+
+- Thanks to the open-source community for the amazing ML libraries
+- Groq AI for powerful document analysis capabilities
+- Cloudinary for reliable document storage
+- All contributors and users who help improve this project
+
+---
+
 ## 📄 License
 
 MIT License - see LICENSE file for details
+
+**Copyright (c) 2025 Bachir Fahmi**

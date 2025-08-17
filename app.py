@@ -1,3 +1,10 @@
+"""
+Document Classification API - Main Application
+Author: Bachir Fahmi
+Email: bachir.fahmi@example.com
+Description: Production-ready document classification system using ML
+"""
+
 import os
 import sys
 import argparse

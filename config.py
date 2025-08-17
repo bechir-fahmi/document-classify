@@ -1,3 +1,9 @@
+"""
+Configuration settings for Document Classification API
+Author: Bachir Fahmi
+Email: bachir.fahmi@example.com
+"""
+
 import os
 
 # Paths
