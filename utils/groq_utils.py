@@ -41,7 +41,7 @@ def extract_text_from_image(image_path: str) -> Dict[str, Any]:
         
         # Create the chat completion request
         completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model="llama-3.1-8b-instant",
             messages=[
                 {
                     "role": "user",
@@ -108,7 +108,7 @@ def analyze_document_content(image_path: str) -> Dict[str, Any]:
         
         # Create the chat completion request
         completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model="llama-3.1-8b-instant",
             messages=[
                 {
                     "role": "user",
@@ -183,7 +183,7 @@ def extract_document_info_with_groq(text: str, doc_type: str) -> Dict[str, Any]:
     try:
         # Call Groq AI
         response = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",  # Using the same model as text extraction
+            model="llama-3.1-8b-instant",  # Using the same model as text extraction
             messages=[
                 {"role": "system", "content": "You are a document analysis expert. Extract dates and client information from documents and return it in JSON format."},
                 {"role": "user", "content": prompt}
