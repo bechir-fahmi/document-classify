@@ -28,6 +28,7 @@ def encode_image(image_path: str) -> str:
 def extract_text_from_image(image_path: str) -> Dict[str, Any]:
     """
     Extract text from an image using Groq's vision capabilities
+    Note: Groq vision models are currently being deprecated, so this falls back to Tesseract
     
     Args:
         image_path: Path to the image file
@@ -35,66 +36,19 @@ def extract_text_from_image(image_path: str) -> Dict[str, Any]:
     Returns:
         Dictionary containing the extracted text and metadata
     """
-    try:
-        # Encode the image
-        base64_image = encode_image(image_path)
-        
-        # Create the chat completion request
-        completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Extract all text from this image. Format the response as a JSON object with a 'text' field containing the extracted text and a 'confidence' field indicating your confidence in the extraction (0-1)."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            temperature=0.1,  # Lower temperature for more focused extraction
-            max_completion_tokens=1024,
-            top_p=1,
-            stream=False,
-            response_format={"type": "json_object"}
-        )
-        
-        # Parse the response
-        response = completion.choices[0].message.content
-        
-        # Try to parse JSON and extract text field
-        try:
-            import json
-            parsed_response = json.loads(response)
-            extracted_text = parsed_response.get("text", response)
-        except (json.JSONDecodeError, KeyError):
-            # If JSON parsing fails, use the raw response
-            extracted_text = response
-        
-        return {
-            "success": True,
-            "text": extracted_text,
-            "model": "groq-vision"
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "text": "",
-            "model": "groq-vision"
-        }
+    # Groq vision models are currently deprecated/decommissioned
+    # Return failure to trigger fallback to Tesseract OCR
+    return {
+        "success": False,
+        "error": "Groq vision models are currently deprecated",
+        "text": "",
+        "model": "groq-vision-disabled"
+    }
 
 def analyze_document_content(image_path: str) -> Dict[str, Any]:
     """
     Analyze document content using Groq's vision capabilities
+    Note: Groq vision models are currently being deprecated, so this is disabled
     
     Args:
         image_path: Path to the document image
@@ -102,53 +56,14 @@ def analyze_document_content(image_path: str) -> Dict[str, Any]:
     Returns:
         Dictionary containing document analysis results
     """
-    try:
-        # Encode the image
-        base64_image = encode_image(image_path)
-        
-        # Create the chat completion request
-        completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Analyze this document and provide the following information in JSON format:\n1. Document type (invoice, receipt, etc.)\n2. Key information (dates, amounts, names, etc.)\n3. Confidence score for the analysis\n4. Any notable features or patterns"
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            temperature=0.1,
-            max_completion_tokens=1024,
-            top_p=1,
-            stream=False,
-            response_format={"type": "json_object"}
-        )
-        
-        # Parse the response
-        response = completion.choices[0].message.content
-        
-        return {
-            "success": True,
-            "analysis": response,
-            "model": "groq-vision"
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "analysis": {},
-            "model": "groq-vision"
-        }
+    # Groq vision models are currently deprecated/decommissioned
+    # Return failure to skip vision analysis
+    return {
+        "success": False,
+        "error": "Groq vision models are currently deprecated",
+        "analysis": {},
+        "model": "groq-vision-disabled"
+    }
 
 def extract_document_info_with_groq(text: str, doc_type: str) -> Dict[str, Any]:
     """

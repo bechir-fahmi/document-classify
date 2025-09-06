@@ -49,12 +49,9 @@ def extract_text_from_file(file_path: str) -> str:
         ext = ext.lower()
         
         if ext in ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']:
-            result = groq_extract_text(file_path)
-            if result["success"]:
-                return result["text"]
-            else:
-                logger.warning(f"Groq extraction failed, falling back to Tesseract: {result.get('error')}")
-                return extract_text_with_tesseract(file_path)
+            # Skip Groq vision models entirely and use Tesseract directly
+            logger.info(f"Using Tesseract OCR for image file: {file_path}")
+            return extract_text_with_tesseract(file_path)
                 
         elif ext == '.pdf':
             return extract_text_from_pdf(file_path)
@@ -101,18 +98,9 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
 def analyze_document(file_path: str) -> Dict[str, Any]:
     try:
-        _, ext = os.path.splitext(file_path)
-        ext = ext.lower()
-        
-        if ext in ['.jpg', '.jpeg', '.png', '.tiff', '.bmp', '.pdf']:
-            result = analyze_document_content(file_path)
-            if result["success"]:
-                return result["analysis"]
-            else:
-                logger.warning(f"Groq analysis failed: {result.get('error')}")
-                return {}
-        else:
-            return {}
+        # Skip Groq vision analysis entirely and return empty analysis
+        logger.info(f"Skipping Groq vision analysis for: {file_path}")
+        return {}
             
     except Exception as e:
         logger.error(f"Error analyzing document: {str(e)}")

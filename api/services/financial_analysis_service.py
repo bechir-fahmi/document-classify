@@ -337,6 +337,466 @@ INSTRUCTIONS:
             logger.error(f"Error generating Groq bilan: {str(e)}")
             return self._generate_fallback_bilan(extracted_texts, business_info, period_days)
     
+    def generate_v2_structured_bilan(
+        self, 
+        downloaded_files: List[Dict[str, Any]], 
+        business_info: Dict[str, Any], 
+        period_days: int
+    ) -> Dict[str, Any]:
+        """
+        Generate V2 structured bilan with the new format
+        """
+        try:
+            # Extract texts from files
+            extracted_texts = []
+            
+            for file_info in downloaded_files:
+                file_path = file_info['file_path']
+                original_doc = file_info['original_doc']
+                
+                try:
+                    # Extract text from file
+                    text = self._text_extractor.extract_text(file_path)
+                    
+                    if text and len(text.strip()) > 10:
+                        extracted_texts.append({
+                            "filename": original_doc.get('filename', 'unknown'),
+                            "document_type": original_doc.get('document_type', 'unknown'),
+                            "text": text[:3000]
+                        })
+                        logger.info(f"Extracted text from: {original_doc.get('filename', 'unknown')}")
+                    
+                except Exception as e:
+                    logger.error(f"Error extracting text from {file_path}: {str(e)}")
+                    continue
+            
+            if not extracted_texts:
+                raise ValueError("No processable documents found with extractable text")
+            
+            logger.info(f"Processing {len(extracted_texts)} documents for V2 bilan generation")
+            
+            # Generate V2 structured bilan using Groq
+            bilan_result = self._generate_v2_groq_bilan(extracted_texts, business_info, period_days)
+            
+            return bilan_result
+            
+        except Exception as e:
+            logger.error(f"Error in V2 bilan generation: {str(e)}")
+            return self._generate_v2_fallback_bilan(extracted_texts if 'extracted_texts' in locals() else [], business_info, period_days)
+    
+    def _generate_v2_groq_bilan(
+        self, 
+        extracted_texts: List[Dict[str, Any]], 
+        business_info: Dict[str, Any], 
+        period_days: int
+    ) -> Dict[str, Any]:
+        """Generate V2 structured bilan using Groq AI"""
+        try:
+            # Prepare text context
+            documents_context = ""
+            for i, doc in enumerate(extracted_texts, 1):
+                documents_context += f"\n--- Document {i}: {doc['filename']} (Type: {doc['document_type']}) ---\n"
+                documents_context += f"{doc['text']}\n"
+                documents_context += "-" * 80 + "\n"
+            
+            # Create comprehensive prompt for V2 structured bilan
+            prompt = f"""Analyze these {len(extracted_texts)} financial documents and generate a structured bilan following the exact format specified.
+
+Business Information:
+- Company: {business_info.get('name', 'N/A')}
+- Period: {business_info.get('period_start', 'N/A')} to {business_info.get('period_end', 'N/A')}
+- Analysis Period: Last {period_days} days
+
+Documents to analyze:
+{documents_context}
+
+Generate EXACTLY this JSON structure with real financial data extracted from the documents:
+{{
+    "date": {{
+        "2021-12-31": "Exercice clos au 31/12/2021",
+        "2020-12-31": "Exercice clos au 31/12/2020"
+    }},
+    "actifs": {{
+        "actifs_non_courants": {{
+            "immobilisations_incorporelles": {{
+                "brut": 0,
+                "amortissements": 0,
+                "net": 0
+            }},
+            "immobilisations_corporelles": {{
+                "brut": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "amortissements": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "net": {{
+                    "2021": 0,
+                    "2020": 0
+                }}
+            }},
+            "immobilisations_financieres": {{
+                "brut": 0,
+                "amortissements": 0,
+                "net": 0
+            }},
+            "total_actifs_immobilises": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "autres_actifs_non_courants": 0,
+            "total": {{
+                "2021": 0,
+                "2020": 0
+            }}
+        }},
+        "actifs_courants": {{
+            "stocks": {{
+                "brut": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "provisions": 0,
+                "net": {{
+                    "2021": 0,
+                    "2020": 0
+                }}
+            }},
+            "clients_et_comptes_rattaches": {{
+                "brut": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "provisions": 0,
+                "net": {{
+                    "2021": 0,
+                    "2020": 0
+                }}
+            }},
+            "autres_actifs_courants": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "placements_et_autres_actifs_financiers": 0,
+            "liquidites_et_equivalents": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "total": {{
+                "2021": 0,
+                "2020": 0
+            }}
+        }},
+        "total_actifs": {{
+            "2021": 0,
+            "2020": 0
+        }}
+    }},
+    "capitaux_propres_et_passifs": {{
+        "capitaux_propres": {{
+            "capital_social": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "reserves": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "autres_capitaux_propres": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "resultats_reportes": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "total_avant_resultat": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "resultat_exercice": {{
+                "2021": 0,
+                "2020": 0
+            }},
+            "total": {{
+                "2021": 0,
+                "2020": 0
+            }}
+        }},
+        "passifs": {{
+            "passifs_non_courants": {{
+                "emprunts": 0,
+                "autres_passifs_financiers": 0,
+                "provisions": 0,
+                "total": 0
+            }},
+            "passifs_courants": {{
+                "fournisseurs_et_comptes_rattaches": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "autres_passifs_courants": {{
+                    "2021": 0,
+                    "2020": 0
+                }},
+                "concours_bancaires_et_autres": 0,
+                "total": {{
+                    "2021": 0,
+                    "2020": 0
+                }}
+            }},
+            "total_passifs": {{
+                "2021": 0,
+                "2020": 0
+            }}
+        }},
+        "total_capitaux_propres_et_passifs": {{
+            "2021": 0,
+            "2020": 0
+        }}
+    }},
+    "analyse_financiere": {{
+        "points_faibles": [],
+        "points_forts": [],
+        "recommandations": []
+    }},
+    "ratios_financiers": {{
+        "marge_brute_percent": 0,
+        "marge_nette_percent": 0,
+        "rentabilite_actif_percent": 0,
+        "liquidite_generale": 1,
+        "autonomie_financiere_percent": 0
+    }}
+}}
+
+INSTRUCTIONS:
+1. Extract real financial data from the provided documents
+2. Use current year and previous year for comparisons (adjust dates accordingly)
+3. Calculate all totals and subtotals accurately
+4. Ensure the balance sheet balances (total actifs = total capitaux propres et passifs)
+5. Provide meaningful financial analysis points
+6. Return ONLY valid JSON, no additional text
+"""
+            
+            # Use Groq financial analyzer
+            try:
+                from utils.groq_utils import client as groq_client
+                
+                response = groq_client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are a certified financial analyst specializing in balance sheet analysis. Extract and structure financial data accurately from documents."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0.1,
+                    max_tokens=4000
+                )
+                
+                groq_response = response.choices[0].message.content
+                logger.info(f"Groq V2 bilan response received: {len(groq_response)} characters")
+                
+                # Parse the JSON response
+                import json
+                try:
+                    bilan_data = json.loads(groq_response)
+                    return bilan_data
+                except json.JSONDecodeError:
+                    # Try to extract JSON from response
+                    import re
+                    json_match = re.search(r'\{.*\}', groq_response, re.DOTALL)
+                    if json_match:
+                        bilan_data = json.loads(json_match.group())
+                        return bilan_data
+                    else:
+                        raise ValueError("Could not parse JSON from Groq response")
+                        
+            except Exception as e:
+                logger.error(f"Error calling Groq API for V2 bilan: {str(e)}")
+                # Fallback to structured template
+                return self._generate_v2_fallback_bilan(extracted_texts, business_info, period_days)
+                
+        except Exception as e:
+            logger.error(f"Error generating V2 Groq bilan: {str(e)}")
+            return self._generate_v2_fallback_bilan(extracted_texts, business_info, period_days)
+    
+    def _generate_v2_fallback_bilan(
+        self, 
+        extracted_texts: List[Dict[str, Any]], 
+        business_info: Dict[str, Any], 
+        period_days: int
+    ) -> Dict[str, Any]:
+        """Generate V2 fallback bilan with the new structured format"""
+        current_year = datetime.now().year
+        previous_year = current_year - 1
+        
+        return {
+            "date": {
+                f"{current_year}-12-31": f"Exercice clos au 31/12/{current_year}",
+                f"{previous_year}-12-31": f"Exercice clos au 31/12/{previous_year}"
+            },
+            "actifs": {
+                "actifs_non_courants": {
+                    "immobilisations_incorporelles": {
+                        "brut": 0,
+                        "amortissements": 0,
+                        "net": 0
+                    },
+                    "immobilisations_corporelles": {
+                        "brut": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "amortissements": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "net": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        }
+                    },
+                    "immobilisations_financieres": {
+                        "brut": 0,
+                        "amortissements": 0,
+                        "net": 0
+                    },
+                    "total_actifs_immobilises": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "autres_actifs_non_courants": 0,
+                    "total": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    }
+                },
+                "actifs_courants": {
+                    "stocks": {
+                        "brut": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "provisions": 0,
+                        "net": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        }
+                    },
+                    "clients_et_comptes_rattaches": {
+                        "brut": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "provisions": 0,
+                        "net": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        }
+                    },
+                    "autres_actifs_courants": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "placements_et_autres_actifs_financiers": 0,
+                    "liquidites_et_equivalents": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "total": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    }
+                },
+                "total_actifs": {
+                    str(current_year): 0,
+                    str(previous_year): 0
+                }
+            },
+            "capitaux_propres_et_passifs": {
+                "capitaux_propres": {
+                    "capital_social": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "reserves": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "autres_capitaux_propres": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "resultats_reportes": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "total_avant_resultat": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "resultat_exercice": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    },
+                    "total": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    }
+                },
+                "passifs": {
+                    "passifs_non_courants": {
+                        "emprunts": 0,
+                        "autres_passifs_financiers": 0,
+                        "provisions": 0,
+                        "total": 0
+                    },
+                    "passifs_courants": {
+                        "fournisseurs_et_comptes_rattaches": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "autres_passifs_courants": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        },
+                        "concours_bancaires_et_autres": 0,
+                        "total": {
+                            str(current_year): 0,
+                            str(previous_year): 0
+                        }
+                    },
+                    "total_passifs": {
+                        str(current_year): 0,
+                        str(previous_year): 0
+                    }
+                },
+                "total_capitaux_propres_et_passifs": {
+                    str(current_year): 0,
+                    str(previous_year): 0
+                }
+            },
+            "analyse_financiere": {
+                "points_faibles": ["Données limitées disponibles pour l'analyse"],
+                "points_forts": ["Documents traités avec succès"],
+                "recommandations": ["Fournir plus de documents financiers pour une analyse complète", "Inclure les états financiers complets pour une meilleure évaluation"]
+            },
+            "ratios_financiers": {
+                "marge_brute_percent": 0,
+                "marge_nette_percent": 0,
+                "rentabilite_actif_percent": 0,
+                "liquidite_generale": 1,
+                "autonomie_financiere_percent": 0
+            }
+        }
+
     def _generate_fallback_bilan(
         self, 
         extracted_texts: List[Dict[str, Any]], 
