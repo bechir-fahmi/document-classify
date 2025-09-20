@@ -70,8 +70,8 @@ class DocumentClassificationService:
             if upload_to_cloud:
                 cloud_result = self._cloud_storage.upload_document(file_path)
             
-            # Extract metadata
-            metadata = self._analyzer.extract_metadata(text)
+            # Extract metadata with document type
+            metadata = self._analyzer.extract_metadata(text, final_prediction)
             
             processing_time = (time.time() - start_time) * 1000
             

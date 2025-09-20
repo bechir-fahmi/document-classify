@@ -22,11 +22,16 @@ class DocumentAnalyzerAdapter(IDocumentAnalyzer):
             logger.error(f"Error in document analysis: {str(e)}")
             return "❓ Unknown Document Type"
     
-    def extract_metadata(self, text: str) -> Dict[str, Any]:
+    def extract_metadata(self, text: str, doc_type: str = None) -> Dict[str, Any]:
         """Extract metadata from document text"""
         try:
-            from utils.document_analyzer import extract_document_info
-            return extract_document_info(text)
+            from utils.groq_utils import extract_document_info_with_groq
+            
+            # Use the provided document type or default to "unknown"
+            document_type = doc_type if doc_type else "unknown"
+            
+            # Use Groq-based extraction which works better
+            return extract_document_info_with_groq(text, document_type)
         except Exception as e:
             logger.error(f"Error extracting metadata: {str(e)}")
             return {}

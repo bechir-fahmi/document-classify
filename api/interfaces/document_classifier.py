@@ -28,7 +28,7 @@ class IDocumentAnalyzer(ABC):
         pass
     
     @abstractmethod
-    def extract_metadata(self, text: str) -> Dict[str, Any]:
+    def extract_metadata(self, text: str, doc_type: str = None) -> Dict[str, Any]:
         """Extract metadata from document text"""
         pass
 
