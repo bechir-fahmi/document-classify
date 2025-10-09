@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, accuracy_score
 import config
 from utils.document_analyzer import DOCUMENT_PATTERNS
+from utils.text_excerpt_generator import generate_smart_excerpt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -562,5 +563,9 @@ class SklearnClassifier:
             'final_prediction': final_prediction,
             'confidence_flag': confidence_flag,
             'confidence_scores': confidence_scores,
-            'text_excerpt': text_excerpt or (text[:500] if text else '')
-        }
+            'text_excerpt': text_excerpt or self._generate_smart_excerpt(text)
+        } 
+   
+    def _generate_smart_excerpt(self, text: str) -> str:
+        """Generate a smart excerpt from the document text"""
+        return generate_smart_excerpt(text, max_length=300)

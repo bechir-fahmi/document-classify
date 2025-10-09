@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    pull_policy: never
+    networks:
+      - pfe-net
     ports:
       - "8000:8000"
     volumes:
@@ -14,3 +17,6 @@ services:
       - API_PORT=8000
       - CONFIDENCE_THRESHOLD=0.15
     restart: unless-stopped 
+networks:
+  pfe-net:
+    external: true

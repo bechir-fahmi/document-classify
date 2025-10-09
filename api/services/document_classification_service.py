@@ -11,6 +11,7 @@ from api.interfaces.document_classifier import (
     IDocumentClassifier, IDocumentAnalyzer, ITextExtractor, 
     IEmbeddingService, ICloudStorageService
 )
+from utils.text_excerpt_generator import generate_smart_excerpt
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class DocumentClassificationService:
                 "final_prediction": final_prediction,
                 "confidence_flag": self._get_confidence_flag(classification_result.get("confidence", 0)),
                 "confidence_scores": classification_result.get("confidence_scores", {}),
-                "text_excerpt": text[:500],
+                "text_excerpt": self._generate_smart_excerpt(text),
                 "processing_time_ms": processing_time,
                 "cloudinary_url": cloud_result.get("url") if cloud_result else None,
                 "public_id": cloud_result.get("public_id") if cloud_result else None,
@@ -123,3 +124,7 @@ class DocumentClassificationService:
             return "medium"
         else:
             return "low"
+    
+    def _generate_smart_excerpt(self, text: str) -> str:
+        """Generate a smart excerpt from the document text"""
+        return generate_smart_excerpt(text, max_length=300)
